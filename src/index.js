@@ -35,27 +35,25 @@ module.exports = function SocketMe(options) {
         },
 
         message(ws, data, isBinary) {
-            const s = ws.__refSMSocket;
+            if(!isBinary || !data) {
+                return;
+            }
 
             //---]>
 
-            if(isBinary) {
-                // ... bin
+            const s = ws.__refSMSocket;
+            let d;
+
+            try {
+                d = JSON.parse(Buffer.from(data));
             }
-            else {
-                let d;
+            catch(e) {
+                eventBus.emit('error', e.message, e, s);
+            }
 
-                try {
-                    d = JSON.parse(Buffer.from(data));
-                }
-                catch(e) {
-                    eventBus.emit('error', e.message, e, s);
-                }
-
-                if(Array.isArray(d)) {
-                    const [type, payload] = d;
-                    s.__events.emit(type, payload);
-                }
+            if(Array.isArray(d) && d.length === 2) {
+                const [type, payload] = d;
+                s.__events.emit(type, payload);
             }
         }
     });

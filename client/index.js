@@ -1,5 +1,24 @@
-﻿function mio(host = 'localhost:3500', ssl = false, binary = false) {
+﻿function mio(host = 'localhost:3500', ssl = false) {
     return createSocket();
+
+    //---]>
+
+    function ab2str(buf) {
+        return new Uint8Array(buf).reduce((data, byte) => (data + String.fromCharCode(byte)), '');
+    }
+
+    function str2ab(str) {
+        const len = str.length;
+
+        const buf = new ArrayBuffer(len);
+        const bufView = new Uint8Array(buf);
+
+        for(let i = 0; i < len; i++) {
+            bufView[i] = str.charCodeAt(i);
+        }
+
+        return buf;
+    }
 
     //---]>
 
@@ -11,9 +30,7 @@
 
         //---]>
 
-        if(binary) {
-            socket.binaryType = 'arraybuffer';
-        }
+        socket.binaryType = 'arraybuffer';
 
         //---]>
 
@@ -28,28 +45,25 @@
                 events.data(data);
             }
 
-            if(binary) {
-                // ... bin
+            //---]>
+
+            let d;
+
+            try {
+                d = JSON.parse(ab2str(data));
             }
-            else {
-                let d;
-
-                try {
-                    d = JSON.parse(data);
+            catch(e) {
+                if(events.error) {
+                    events.error(e.message, e);
                 }
-                catch(e) {
-                    if(events.error) {
-                        events.error(e.message, e);
-                    }
-                }
+            }
 
-                if(Array.isArray(d)) {
-                    const [type, payload] = d;
-                    const action = actions[type];
+            if(Array.isArray(d) && d.length === 2) {
+                const [type, payload] = d;
+                const action = actions[type];
 
-                    if(action) {
-                        action(payload);
-                    }
+                if(action) {
+                    action(payload);
                 }
             }
         };
@@ -98,14 +112,8 @@
                 actions[type] = callback;
             },
             emit(type, data) {
-                if(binary) {
-                    // ...bin
-                }
-                else {
-                    data = JSON.stringify([type, data]);
-                }
-
-                this.send(data)
+                data = JSON.stringify([type, data]);
+                this.send(str2ab(data))
             },
 
             //---]>

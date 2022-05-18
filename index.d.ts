@@ -1,6 +1,3 @@
-
-//--------------------------------------------------
-
 export type SMSocketEvent = (data: any) => void;
 
 export interface SMSocket {

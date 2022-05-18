@@ -26,6 +26,10 @@ mio.onDisconnect((socket) => {
     console.log('onDisconnect');
 });
 
+mio.onError((message) => {
+    console.log('onError', message);
+});
+
 //--------------------------------------------------
 
 mio.listen(3500).then((listenSocket) => {
