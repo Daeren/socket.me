@@ -1,8 +1,8 @@
-const ws = require('./../../.');
+const mio = require('./../../.');
 
 //--------------------------------------------------
 
-const mio = ws({
+const ws = mio({
     idleTimeout: 8,
     maxBackpressure: 1024,
     maxPayloadLength: 512,
@@ -10,7 +10,7 @@ const mio = ws({
 
 //--------------------------------------------------
 
-mio.onConnection((socket) => {
+ws.onConnection((socket) => {
     console.log('onConnection');
 
     //---]>
@@ -24,16 +24,16 @@ mio.onConnection((socket) => {
     });
 });
 
-mio.onDisconnect((socket) => {
+ws.onDisconnect((socket) => {
     console.log('onDisconnect');
 });
 
-mio.onError((message) => {
+ws.onError((message) => {
     console.log('onError', message);
 });
 
 //--------------------------------------------------
 
-mio.listen(3500).then((listenSocket) => {
+ws.listen(3500).then((listenSocket) => {
     console.log('[status] listening to port 3500:', listenSocket);
-})
+});
