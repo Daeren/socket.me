@@ -15,10 +15,12 @@ mio.onConnection((socket) => {
 
     //---]>
 
-    socket.on('createRoom', (code) => {
+    socket.on('createRoom', (code, response) => {
         console.log('createRoom', code);
 
-        socket.emit('createRoom', code);
+        //socket.emit('createRoom', code); // ответ в общее событие
+
+        response('+'); // ответ лично в запрос или в общее событие
     });
 });
 

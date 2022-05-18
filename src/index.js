@@ -39,9 +39,10 @@ module.exports = function SocketMe(options) {
                 return;
             }
 
+            const s = ws.__refSMSocket;
+
             //---]>
 
-            const s = ws.__refSMSocket;
             let d;
 
             try {
@@ -51,10 +52,44 @@ module.exports = function SocketMe(options) {
                 eventBus.emit('error', e.message, e, s);
             }
 
-            if(Array.isArray(d) && d.length === 2) {
-                const [type, payload] = d;
-                s.__events.emit(type, payload);
+            if(!Array.isArray(d)) {
+                return;
             }
+
+            //---]>
+
+            const dSize = d.length;
+
+            if(dSize !== 2 && dSize !== 3) {
+                return;
+            }
+
+            //---]>
+
+            let type;
+            let ack;
+            let payload;
+
+            let replyDone = false;
+            let replyCallback = (result) => {
+                if(!replyDone) {
+                    replyDone = true;
+                    s.emit(dSize === 2 ? type : ack, result);
+                }
+            };
+
+            //---]>
+
+            if(dSize === 2) {
+                [type, payload] = d;
+            }
+            else if(dSize === 3) {
+                [type, ack, payload] = d;
+            }
+
+            //---]>
+
+            s.__events.emit(type, payload, replyCallback);
         }
     });
 

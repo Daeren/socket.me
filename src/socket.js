@@ -15,17 +15,18 @@ class Socket {
     //---]>
 
     on(type, callback) {
-        this.__events.on(type, (data) => {
-            callback(data);
+        if(typeof type !== 'string') {
+            throw new Error('Socket.on | invalid `type` (non string): ' + type);
+        }
+
+        this.__events.on(type, (data, cbResponse) => {
+            callback(data, cbResponse);
         });
     }
 
     emit(type, data) {
         const isBinary = true;
-
-        data = JSON.stringify([type, data]);
-
-        this.__socket.send(data, isBinary);
+        this.__socket.send(JSON.stringify([type, data]), isBinary);
     }
 }
 

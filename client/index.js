@@ -28,6 +28,9 @@
         const events = {};
         const actions = {};
 
+        const callbacksAck = {};
+        let lastAck = 0;
+
         //---]>
 
         socket.binaryType = 'arraybuffer';
@@ -58,12 +61,22 @@
                 }
             }
 
+            //---]>
+
             if(Array.isArray(d) && d.length === 2) {
                 const [type, payload] = d;
-                const action = actions[type];
 
-                if(action) {
-                    action(payload);
+                //---]>
+
+                if(typeof type === 'number') {
+                    callbacksAck[type](payload);
+                }
+                else {
+                    const action = actions[type];
+
+                    if(action) {
+                        action(payload);
+                    }
                 }
             }
         };
@@ -111,9 +124,21 @@
             on(type, callback) {
                 actions[type] = callback;
             },
-            emit(type, data) {
-                data = JSON.stringify([type, data]);
-                this.send(str2ab(data))
+            emit(type, data, callback) {
+                if(callback) {
+                    lastAck++;
+
+                    data = [type, lastAck, data];
+                    callbacksAck[lastAck] = (r) => {
+                        delete callbacksAck[lastAck];
+                        callback(r);
+                    };
+                }
+                else {
+                    data = [type, data];
+                }
+
+                this.send(str2ab(JSON.stringify(data)))
             },
 
             //---]>
