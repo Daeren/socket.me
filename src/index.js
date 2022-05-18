@@ -22,7 +22,9 @@ module.exports = function SocketMe(options) {
 
     //---]>
 
-    uwsApp.ws('/*', {
+    uwsApp
+        .get('/*', (res) => res.end(''))
+        .ws('/*', {
         ...options,
 
         //---]>
@@ -93,9 +95,9 @@ module.exports = function SocketMe(options) {
         }
     });
 
-    uwsApp
-        .get('/' + options.clientLibPath, (response, request) => sendClientLib(request.getHeader('accept-encoding'), response))
-        .get('/*', (res) => res.end(''));
+    if(options.clientLibPath) {
+        uwsApp.get('/' + options.clientLibPath, (response, request) => sendClientLib(request.getHeader('accept-encoding'), response));
+    }
 
     //---]>
 
