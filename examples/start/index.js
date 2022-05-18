@@ -12,6 +12,14 @@ const mio = ws({
 
 mio.onConnection((socket) => {
     console.log('onConnection');
+
+    //---]>
+
+    socket.on('createRoom', (code) => {
+        console.log('createRoom', code);
+
+        socket.emit('createRoom', code);
+    });
 });
 
 mio.onDisconnect((socket) => {

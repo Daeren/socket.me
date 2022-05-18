@@ -12,11 +12,9 @@ export interface SMSocket {
 
 export type SMAppEventConnection = (socket: SMSocket) => void;
 export type SMAppEventDisconnection = (socket: SMSocket) => void;
+export type SMAppEventError = (message: string, e: Error, socket: SMSocket) => void;
 
 export interface SMApp {
-
-    //---]>
-
     get isListen(): boolean;
 
     //---]>
@@ -28,6 +26,7 @@ export interface SMApp {
 
     onConnection(callback: SMAppEventConnection): void;
     onDisconnect(callback: SMAppEventDisconnection): void;
+    onError(callback: SMAppEventError): void;
 }
 
 //--------------------------------------------------

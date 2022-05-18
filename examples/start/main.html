@@ -9,27 +9,27 @@
 
     <script src="http://localhost:3500/socket.me"></script>
     <script>
-    const s = wrapSocket(getSocket('localhost:3500'));
+    const s = mio('localhost:3500');
 
     //---]>
 
     s.on('createRoom', (data) => {
-        console.log('createRoom', data);
+        console.log('[srv.back] createRoom', data);
     });
 
     //---]>
 
-    s.is('connected', () => {
+    s.onConnected(() => {
         console.log("[open] Соединение установлено");
 
-        s.send("Привет");
+        s.emit('createRoom', 200);
     });
 
-    s.is('data', (data) => {
+    s.onData((data) => {
         console.log(`[message] Данные получены с сервера: ${data}`);
     });
 
-    s.is('close', (wasClean, code, reason) => {
+    s.onClose((wasClean, code, reason) => {
         if(wasClean) {
             console.log(`[close] Соединение закрыто чисто, код=${code} причина=${reason}`);
         }
@@ -40,7 +40,7 @@
         }
     });
 
-    s.is('error', (message) => {
+    s.onError((message) => {
         console.log(`[error] ${message}`);
     });
     </script>

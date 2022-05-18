@@ -1,90 +1,119 @@
-﻿function getSocket(host = 'localhost:3500', ssl = false) {
-    const socket = new WebSocket(`ws${ssl ? 's' : ''}://${host}`);
-    const tableOk = {};
+﻿function mio(host = 'localhost:3500', ssl = false, binary = false) {
+    return createSocket();
 
     //---]>
 
-    socket.onopen = function(e) {
-        if(tableOk.connected) {
-            tableOk.connected();
+    function createSocket() {
+        const socket = new WebSocket(`ws${ssl ? 's' : ''}://${host}`);
+
+        const events = {};
+        const actions = {};
+
+        //---]>
+
+        if(binary) {
+            socket.binaryType = 'arraybuffer';
         }
-    };
 
-    socket.onmessage = function(event) {
-        if(tableOk.data) {
-            tableOk.data(event.data);
-        }
+        //---]>
 
-        if(tableOk.json) {
-            let d;
-
-            try {
-                d = JSON.parse(event.data);
+        socket.onopen = function(e) {
+            if(events.connected) {
+                events.connected();
             }
-            catch(e) {
+        };
+
+        socket.onmessage = function({ data }) {
+            if(events.data) {
+                events.data(data);
             }
 
-            if(typeof d !== 'undefined') {
-                tableOk.json(d);
+            if(binary) {
+                // ... bin
             }
-        }
-    };
+            else {
+                let d;
 
-    socket.onclose = function(event) {
-        if(tableOk.close) {
-            tableOk.close(event.wasClean, event.code, event.reason);
-        }
-    };
+                try {
+                    d = JSON.parse(data);
+                }
+                catch(e) {
+                    if(events.error) {
+                        events.error(e.message, e);
+                    }
+                }
 
-    socket.onerror = function(error) {
-        if(tableOk.error) {
-            tableOk.error(error.message);
-        }
-    };
+                if(Array.isArray(d)) {
+                    const [type, payload] = d;
+                    const action = actions[type];
 
-    //---]>
+                    if(action) {
+                        action(payload);
+                    }
+                }
+            }
+        };
 
-    return {
-        is(type, callback) {
-            tableOk[type] = callback;
-        },
+        socket.onclose = function(event) {
+            if(events.close) {
+                events.close(event.wasClean, event.code, event.reason);
+            }
+        };
 
-        send(data) {
-            socket.send(data);
-        },
+        socket.onerror = function(error) {
+            if(events.error) {
+                events.error(error.message, error);
+            }
+        };
 
-        close(code = 1000, reason = '') {
-            socket.close(code, reason);
-        }
-    };
+        //---]>
+
+        return {
+            get readyState() { return socket.readyState; },
+            get bufferedAmount() { return socket.bufferedAmount; },
+
+            //---]>
+
+            send(data) {
+                try {
+                    socket.send(data);
+                }
+                catch(e) {
+                    if(events.error) {
+                        events.error(e.message, e);
+                    }
+
+                    return false;
+                }
+
+                return true;
+            },
+            close(code = 1000, reason = '') {
+                socket.close(code, reason);
+            },
+
+            //---]>
+
+            on(type, callback) {
+                actions[type] = callback;
+            },
+            emit(type, data) {
+                if(binary) {
+                    // ...bin
+                }
+                else {
+                    data = JSON.stringify([type, data]);
+                }
+
+                this.send(data)
+            },
+
+            //---]>
+
+            onConnected(callback) { events.connected = callback; },
+            onClose(callback) { events.close = callback; },
+            onData(callback) { events.data = callback; },
+            onError(callback) { events.error = callback; }
+        };
+    }
 }
-
-//-------------------------------------------
-
-function wrapSocket(ws) {
-    const tableEvent = {};
-
-    ws.is('json', (data) => {
-        const [type, body] = data;
-        const func = tableEvent[type];
-
-        if(func) {
-            func(body);
-        }
-    });
-
-    return {
-        ...ws,
-
-        on(type, callback) {
-            tableEvent[type] = callback;
-        },
-        emit(type, data) {
-            ws.send(JSON.stringify([type, data]))
-        }
-    };
-}
-
-//-------------------------------------------
-
-

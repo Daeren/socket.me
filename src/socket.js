@@ -21,9 +21,9 @@ class Socket {
     }
 
     emit(type, data) {
-        const isBinary = true;
+        const isBinary = false;
 
-        //data = [type, data];
+        data = JSON.stringify([type, data]);
 
         this.__socket.send(data, isBinary);
     }

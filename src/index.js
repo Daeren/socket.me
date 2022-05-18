@@ -34,17 +34,29 @@ module.exports = function SocketMe(options) {
             eventBus.emit('disconnect', ws);
         },
 
-        message(ws, message, isBinary) {
-            if(!isBinary) {
-                return;
-            }
+        message(ws, data, isBinary) {
+            const s = ws.__refSMSocket;
 
             //---]>
 
-            const s = ws.__refSMSocket;
+            if(isBinary) {
+                // ... bin
+            }
+            else {
+                let d;
 
-            //s.__events.emit('', 0);
-            //eventBus.emit('disconnect', ws);
+                try {
+                    d = JSON.parse(Buffer.from(data));
+                }
+                catch(e) {
+                    eventBus.emit('error', e.message, e, s);
+                }
+
+                if(Array.isArray(d)) {
+                    const [type, payload] = d;
+                    s.__events.emit(type, payload);
+                }
+            }
         }
     });
 
@@ -99,6 +111,11 @@ module.exports = function SocketMe(options) {
         onDisconnect(callback) {
             eventBus.on('disconnect', (socket) => {
                 callback(socket.__refSMSocket);
+            });
+        }
+        onError(callback) {
+            eventBus.on('error', (message, e, socket) => {
+                callback(message, e, socket.__refSMSocket);
             });
         }
     }
