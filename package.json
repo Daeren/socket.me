@@ -1,0 +1,30 @@
+{
+  "name": "socket.me",
+  "version": "0.0.1",
+  "description": "Fast Strong-typed WebSockets",
+
+  "author": {
+    "name": "Daeren",
+    "email": "x@db.gg"
+  },
+  "homepage": "https://666.io",
+
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Daeren/socket.me.git"
+  },
+
+  "keywords": [
+    "websocket",
+    "socket",
+    "games"
+  ],
+  "license": "MIT",
+
+  "dependencies": {
+    "@daeren/uws": "^20"
+  },
+
+  "main": "./index",
+  "types": "./index.d.ts"
+}
