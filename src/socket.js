@@ -19,8 +19,14 @@ class Socket {
             throw new Error('Socket.on | invalid `type` (non string): ' + type);
         }
 
-        this.__events.on(type, (data, cbResponse) => {
-            callback(data, cbResponse);
+        if(typeof callback !== 'function') {
+            throw new Error('Socket.on | invalid `callback` (non function): ' + callback);
+        }
+
+        //---]>
+
+        this.__events.on(type, (data, response) => {
+            callback(data, response);
         });
     }
 

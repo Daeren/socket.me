@@ -1,4 +1,4 @@
-export type SMSocketEvent = (data: any) => void;
+export type SMSocketEvent = (data: any, response: (result: any) => void) => void;
 
 export interface SMSocket {
     on(type: string, callback: SMSocketEvent): void;
