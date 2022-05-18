@@ -25,6 +25,6 @@
     "@daeren/uws": "^20"
   },
 
-  "main": "./index",
+  "main": "./index.js",
   "types": "./index.d.ts"
 }

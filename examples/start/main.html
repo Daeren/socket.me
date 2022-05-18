@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+    </head>
+
+    <body></body>
+
+    <script src="http://localhost:3500/socket.me"></script>
+    <script>
+    const s = wrapSocket(getSocket('localhost:3500'));
+
+    //---]>
+
+    s.on('createRoom', (data) => {
+        console.log('createRoom', data);
+    });
+
+    //---]>
+
+    s.is('connected', () => {
+        console.log("[open] Соединение установлено");
+
+        s.send("Привет");
+    });
+
+    s.is('data', (data) => {
+        console.log(`[message] Данные получены с сервера: ${data}`);
+    });
+
+    s.is('close', (wasClean, code, reason) => {
+        if(wasClean) {
+            console.log(`[close] Соединение закрыто чисто, код=${code} причина=${reason}`);
+        }
+        else {
+            // например, сервер убил процесс или сеть недоступна
+            // обычно в этом случае event.code 1006
+            console.log('[close] Соединение прервано');
+        }
+    });
+
+    s.is('error', (message) => {
+        console.log(`[error] ${message}`);
+    });
+    </script>
+</html>
