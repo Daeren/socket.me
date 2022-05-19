@@ -1,4 +1,4 @@
-﻿const { setCallbackByKey } = require('./../safe');
+﻿const { setCallbackByKey } = require('./../shared/safe');
 
 //---]>
 

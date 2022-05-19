@@ -1,19 +1,17 @@
 ﻿const {
-    setCallbackByKey,
-
     assertBindEvent,
     assertRemoveEvent,
     assertCallEvent
-} = require('./../safe');
+} = require('./../shared/safe');
 
-const { pack } = require('./../messagePacker');
+const { pack } = require('./../shared/messagePacker');
 
 //--------------------------------------------------
 
 function SMSocket(socket) {
     const send = (type, ack, data) => {
         const isBinary = true;
-        const d = pack(typeof ack !== 'undefined' ? undefined : type, ack, data);
+        const d = pack(ack === null ? type : '', ack, data);
 
         if(d instanceof Error) {
             throw d;
@@ -64,7 +62,7 @@ function SMSocket(socket) {
         emit(type, data) {
             assertCallEvent(type);
 
-            send(type, undefined, data);
+            send(type, null, data);
         }
     };
 }

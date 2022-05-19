@@ -2,8 +2,8 @@
 
 //---]>
 
-const { onceCall } = require('./../safe');
-const { unpack } = require('./../messagePacker');
+const { onceCall } = require('./../shared/safe');
+const { unpack } = require('./../shared/messagePacker');
 
 //---]>
 
@@ -63,18 +63,9 @@ function bindWsReq(app, options, events) {
 
             //---]>
 
-            let type, ack, payload;
-
-            if(d.length === 2) {
-                [type, payload] = d;
-            }
-            else {
-                [type, ack, payload] = d;
-            }
-
-            //---]>
-
             const s = ws.__refSMSocket;
+            const [type, ack, payload] = d;
+
             const action = s.__actions[type];
 
             if(action) {
