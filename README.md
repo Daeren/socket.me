@@ -45,13 +45,13 @@ ws.on('someEvent', (data) => { });
 ```
 
 
-Nuxt.js:
+Browser:
 ```javascript
 <script src="http://localhost:3500/socket.me"></script>
 ```
 
 
-Browser:
+Nuxt.js:
 ```javascript
 import mio from 'socket.me/client';
 ```

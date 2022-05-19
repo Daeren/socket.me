@@ -21,7 +21,7 @@ export interface CSocket {
     on(type: string, callback: CSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data: any): void;
+    emit(type: string, data: any, response: (result: any) => void): void;
 
     //---]>
 
@@ -33,6 +33,6 @@ export interface CSocket {
 
 //--------------------------------------------------
 
-export interface mio {
+export interface Mio {
     (host?: string, ssl?:boolean): CSocket;
 }
