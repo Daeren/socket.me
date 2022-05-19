@@ -19,7 +19,7 @@
 
     //---]>
 
-    s.onConnected(() => {
+    s.onConnect(() => {
         console.log("[open] Соединение установлено");
 
         setTimeout(() => {
@@ -31,7 +31,7 @@
             s.emit('createRoom', 200, (r) => console.log('Личный ответ:', r));
         }, 2000);
 
-        s.emit('createRoom', 200, (r) => console.log('Личный ответ:', r));
+        s.emit('error', 200, (r) => console.log('Личный ответ:', r));
     });
 
     s.onData((data) => {

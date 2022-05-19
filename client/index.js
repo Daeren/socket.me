@@ -6,15 +6,16 @@
     function createSocket() {
         const socket = new WebSocket(`ws${ssl ? 's' : ''}://${host}`);
 
-        const actions = Object.create(null);
+        let actions = Object.create(null);
         const events = {
-            connected() { /* NOP */ },
+            connect() { /* NOP */ },
             close(_wasClean, _code, _reason) { /* NOP */ },
             data(_data) { /* NOP */ },
             error(_message, _error) { /* NOP */ }
         };
 
         const callbacksAck = Object.create(null);
+
         let lastAck = 0;
 
         //---]>
@@ -24,7 +25,7 @@
         //---]>
 
         socket.onopen = function() {
-            events.connected();
+            events.connect();
         };
 
         socket.onclose = function(event) {
@@ -73,6 +74,8 @@
             get readyState() { return socket.readyState; },
             get bufferedAmount() { return socket.bufferedAmount; },
 
+            get connected() { return socket.readyState === 1; },
+
             //---]>
 
             send(data) {
@@ -93,22 +96,23 @@
             //---]>
 
             on(type, callback) {
-                if(typeof type !== 'string') {
-                    throw new Error('Socket.on | invalid `type` (non string): ' + type);
-                }
-
-                if(typeof callback !== 'function') {
-                    throw new Error('Socket.on | invalid `callback` (non function): ' + callback);
-                }
-
-                //---]>
+                safeAssertBindEvent(type, callback);
 
                 actions[type] = callback;
             },
-            emit(type, data, callback) {
-                if(typeof type !== 'string') {
-                    throw new Error('Socket.emit | invalid `type` (non string): ' + type);
+            off(type) {
+                safeAssertRemoveEvent(type);
+
+                if(type) {
+                    delete actions[type];
                 }
+                else {
+                    actions = Object.create(null);
+                }
+            },
+
+            emit(type, data, callback) {
+                safeAssertCallEvent(type);
 
                 //---]>
 
@@ -137,7 +141,7 @@
 
             //---]>
 
-            onConnected(callback) { safeSetCallbackByKey(events, 'connected', callback); },
+            onConnect(callback) { safeSetCallbackByKey(events, 'connect', callback); },
             onClose(callback) { safeSetCallbackByKey(events, 'close', callback); },
             onData(callback) { safeSetCallbackByKey(events, 'data', callback); },
             onError(callback) { safeSetCallbackByKey(events, 'error', callback); },
@@ -164,6 +168,23 @@
     }
 
     //---]>
+
+    /**
+     *
+     * @param {object} table
+     * @param {string} key
+     * @param {any} payload
+     */
+    function silentCallByKey(table, key, payload) {
+        const action = table[key];
+
+        if(action) {
+            action(payload);
+        }
+    }
+
+    //---]>
+    // todo: module.pack
 
     /**
      *
@@ -212,6 +233,7 @@
     }
 
     //---]>
+    // todo: module.safe | dup
 
     /**
      *
@@ -229,15 +251,36 @@
 
     /**
      *
-     * @param {object} table
-     * @param {string} key
-     * @param {any} payload
+     * @param {string} type
+     * @param {Function} callback
      */
-    function silentCallByKey(table, key, payload) {
-        const action = table[key];
+    function safeAssertBindEvent(type, callback) {
+        if(typeof type !== 'string') {
+            throw new Error('assertBindEvent | invalid `type` (non string): ' + type);
+        }
 
-        if(action) {
-            action(payload);
+        if(typeof callback !== 'function') {
+            throw new Error('assertBindEvent | invalid `callback` (non function): ' + type);
+        }
+    }
+
+    /**
+     *
+     * @param {string} type
+     */
+    function safeAssertRemoveEvent(type) {
+        if(typeof type !== 'string' && typeof type !== 'undefined') {
+            throw new Error('assertRemoveEvent | invalid `type` (non string): ' + type);
+        }
+    }
+
+    /**
+     *
+     * @param {string} type
+     */
+    function safeAssertCallEvent(type) {
+        if(typeof type !== 'string') {
+            throw new Error('assertCallEvent | invalid `type` (non string): ' + type);
         }
     }
 }

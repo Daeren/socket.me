@@ -7,25 +7,25 @@ const SMSocket = require('./SMSocket');
 //--------------------------------------------------
 
 function SMApp({ app, events }) {
+    let listenSocket = null;
+
+    //---]>
+
     return {
-        listenSocket: null,
-
-        //---]>
-
-        get isListen() { return !!this.listenSocket },
+        get listening() { return !!listenSocket },
 
         //---]>
 
         listen(port, host) {
             return new Promise((resolve) => {
                 const done = (v) => {
-                    this.listenSocket = v;
+                    listenSocket = v;
                     resolve(!!v);
                 };
 
                 //---]>
 
-                if(this.listenSocket) {
+                if(listenSocket) {
                     resolve(false);
                 }
                 else if(host) {
@@ -37,20 +37,18 @@ function SMApp({ app, events }) {
             });
         },
         shutdown() {
-            const { listenSocket } = this;
-
             if(listenSocket) {
                 app.us_listen_socket_close(listenSocket);
             }
 
-            this.listenSocket = null;
+            listenSocket = null;
         },
 
         //---]>
 
         onConnection(callback) {
             setCallbackByKey(events, 'connection', (ws) => {
-                ws = ws.__refSMSocket = new SMSocket(ws);
+                ws = ws.__refSMSocket = SMSocket(ws);
                 callback(ws);
             });
         },

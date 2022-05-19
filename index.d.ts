@@ -1,7 +1,18 @@
 export type SMSocketEvent = (data: any, response: (result: any) => void) => void;
 
 export interface SMSocket {
+    get remoteAddress(): string;
+
+    //---]>
+
+    terminate(): void;
+    disconnect(code?: number, reason?: string): void;
+
+    //---]>
+
     on(type: string, callback: SMSocketEvent): void;
+    off(type?: string): void;
+
     emit(type: string, data: any): void;
 }
 
@@ -12,11 +23,7 @@ export type SMAppEventDisconnection = (socket: SMSocket) => void;
 export type SMAppEventError = (message: string, e: Error, socket: SMSocket) => void;
 
 export interface SMApp {
-    listenSocket: null | object; // uws
-
-    //---]>
-
-    get isListen(): boolean;
+    get listening(): boolean;
 
     //---]>
 
@@ -32,12 +39,29 @@ export interface SMApp {
 
 //--------------------------------------------------
 
+export interface ServerOptions {
+    key_file_name?: string;
+    cert_file_name?: string;
+    ca_file_name?: string;
+
+    passphrase?: string;
+    dh_params_file_name?: string;
+
+    /** This translates to SSL_MODE_RELEASE_BUFFERS */
+    ssl_prefer_low_memory_usage?: boolean;
+}
+
 /** WebSocket compression options. Combine any compressor with any decompressor using bitwise OR. */
 export type CompressOptions = number;
 
+//---]>
+
 export type SMAppOptions = {
-    clientLibPath?: 'socket.me',
-    packets?: object,
+    clientLibPath?: 'socket.me';
+    packets?: object;
+
+    ssl?: boolean,
+    server?: ServerOptions;
 
     /** Maximum length of received message. If a client tries to send you a message larger than this, the connection is immediately closed. Defaults to 16 * 1024. */
     maxPayloadLength?: number;

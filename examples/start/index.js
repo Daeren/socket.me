@@ -11,9 +11,19 @@ const ws = mio({
 //--------------------------------------------------
 
 ws.onConnection((socket) => {
-    console.log('onConnection');
+    console.log('onConnection', socket.remoteAddress);
 
     //---]>
+
+    socket.on('error', (code, response) => {
+        console.log('error', code);
+        response('-'); // ответ лично в запрос или в общее событие (если изначально был общий запрос)
+
+        // socket.terminate();
+        // socket.terminate();
+        // socket.disconnect(1206, 'end');
+    });
+
 
     socket.on('createRoom', (code, response) => {
         console.log('createRoom', code);

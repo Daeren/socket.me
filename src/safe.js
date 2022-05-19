@@ -4,7 +4,7 @@
  * @param {string} errorMessage
  * @returns {Function}
  */
-function onceCall(callback, errorMessage) {
+function onceCall(callback, errorMessage = 'Double call') {
     let replyDone = false;
 
     return (...args) => {
@@ -42,7 +42,7 @@ function setCallbackByKey(table, key, callback) {
  */
 function assertBindEvent(type, callback) {
     if(typeof type !== 'string') {
-        throw new Error('assertBindEvent | invalid `type` (non function): ' + type);
+        throw new Error('assertBindEvent | invalid `type` (non string): ' + type);
     }
 
     if(typeof callback !== 'function') {
@@ -54,9 +54,19 @@ function assertBindEvent(type, callback) {
  *
  * @param {string} type
  */
+function assertRemoveEvent(type) {
+    if(typeof type !== 'string' && typeof type !== 'undefined') {
+        throw new Error('assertRemoveEvent | invalid `type` (non string): ' + type);
+    }
+}
+
+/**
+ *
+ * @param {string} type
+ */
 function assertCallEvent(type) {
     if(typeof type !== 'string') {
-        throw new Error('assertCallEvent | invalid `type` (non function): ' + type);
+        throw new Error('assertCallEvent | invalid `type` (non string): ' + type);
     }
 }
 
@@ -68,5 +78,6 @@ module.exports = {
     setCallbackByKey,
 
     assertBindEvent,
+    assertRemoveEvent,
     assertCallEvent
 };

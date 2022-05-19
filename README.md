@@ -41,7 +41,7 @@ const ws = mio('localhost:3500');
 
 //---]>
 
-ws.onConnected(() => {
+ws.onConnect(() => {
     ws.emit('message', 'hello', (r) => console.log(r));
 });
 

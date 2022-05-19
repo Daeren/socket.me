@@ -1,25 +1,17 @@
-﻿const EventEmitter = require('events');
+﻿const {
+    setCallbackByKey,
 
-//---]>
+    assertBindEvent,
+    assertRemoveEvent,
+    assertCallEvent
+} = require('./../safe');
 
-const { assertBindEvent, assertCallEvent } = require('./../safe');
 const { pack } = require('./../messagePacker');
 
 //--------------------------------------------------
 
-class SMSocket {
-    __socket = null;
-    __events = new EventEmitter();
-
-    //---]>
-
-    constructor(socket) {
-        this.__socket = socket;
-    }
-
-    //---]>
-
-    __send(type, ack, data) {
+function SMSocket(socket) {
+    const send = (type, ack, data) => {
         const isBinary = true;
         const d = pack(typeof ack !== 'undefined' ? undefined : type, ack, data);
 
@@ -27,24 +19,54 @@ class SMSocket {
             throw d;
         }
 
-        this.__socket.send(d, isBinary);
-    }
+        socket.send(d, isBinary);
+    };
+
+    let actions = Object.create(null);
 
     //---]>
 
-    on(type, callback) {
-        assertBindEvent(type, callback);
+    return {
+        get __actions() { return actions; },
+        get __send() { return send; },
 
-        this.__events.on(type, (data, response) => {
-            callback(data, response);
-        });
-    }
+        //---]>
 
-    emit(type, data) {
-        assertCallEvent(type);
+        get remoteAddress() { return Buffer.from(socket.getRemoteAddressAsText()).toString(); },
 
-        this.__send(type, undefined, data);
-    }
+        //---]>
+
+        terminate() {
+            socket.close();
+        },
+        disconnect(code, reason) {
+            socket.end(code, reason);
+        },
+
+        //---]>
+
+        on(type, callback) {
+            assertBindEvent(type, callback);
+
+            actions[type] = callback;
+        },
+        off(type) {
+            assertRemoveEvent(type);
+
+            if(type) {
+                delete actions[type];
+            }
+            else {
+                actions = Object.create(null);
+            }
+        },
+
+        emit(type, data) {
+            assertCallEvent(type);
+
+            send(type, undefined, data);
+        }
+    };
 }
 
 //--------------------------------------------------
