@@ -1,6 +1,8 @@
-﻿const fs = require('fs');
-const path = require('path');
-const zlib = require('zlib');
+﻿const zlib = require('zlib');
+
+//---]>
+
+const genClientLib = require('./../genClientLib');
 
 //--------------------------------------------------
 
@@ -12,18 +14,13 @@ const reDeflate = /\bdeflate\b/;
 const reGzip = /\bgzip\b/;
 const reBr = /\bbr\b/;
 
-const lib = buildModules([
-    ['/src/client/index.js', 'client'],
-    ['/src/client/tools.js', 'tools'],
-    ['/src/shared/safe.js', 'safe'],
-    ['/src/shared/messagePacker.js', 'messagePacker']
-]);
+const { dist: clientLib } = genClientLib();
 
 //--------------------------------------------------
 
 module.exports = function(packets) {
     const libPayload = `\r\n(window.mio && (window.mio.__staticPackets=${JSON.stringify(packets)}));`;
-    const libData = lib + libPayload;
+    const libData = clientLib + libPayload;
 
     const brParams =  {
         [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
@@ -63,49 +60,3 @@ module.exports = function(packets) {
             .end(data);
     };
 }
-
-//--------------------------------------------------
-
-function buildModules(targets) {
-    const libs = load();
-
-    let txtModules = 'const global = {};';
-    let txtClient = '';
-
-    //---]>
-
-    for(const [name, lib] of Object.entries(libs)) {
-        if(name === 'client') {
-            txtClient = lib;
-        }
-        else {
-            const mdDecl = `global.${name} = {};`;
-            const mdBody = `(function(module) { ${lib} })(global.${name});`;
-
-            txtModules += mdDecl + mdBody;
-        }
-    }
-
-    for(const [name] of Object.entries(libs)) {
-        if(name !== 'client') {
-            txtClient = txtClient.replace(/require\(.+\)/, `global.${name}.exports`);
-        }
-    }
-
-    //---]>
-
-    return `function mio(...args) { ${txtModules + txtClient} return main(...args); }`;
-
-    //---]>
-
-    function load() {
-        const result = {};
-
-        for(const [file, name] of targets) {
-            result[name] = fs.readFileSync(path.join(__dirname, '..', '..', file)).toString();
-        }
-
-        return result;
-    }
-}
-

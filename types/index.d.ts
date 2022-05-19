@@ -79,4 +79,3 @@ export type SMAppOptions = {
 export interface SocketMe {
     (options?: SMAppOptions): SMApp;
 }
-

@@ -32,6 +32,10 @@ ws.onConnection((socket) => {
 
         response('+'); // ответ лично в запрос или в общее событие (если изначально был общий запрос)
     });
+
+    socket.on('message', (text, response) => {
+        response(`${text} world`);
+    });
 });
 
 ws.onDisconnect((socket) => {

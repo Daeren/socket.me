@@ -17,7 +17,7 @@ const {
 
 //--------------------------------------------------
 
-function main(host = 'localhost:3500', ssl = false) {
+function mio(host = 'localhost:3500', ssl = false) {
     const socket = new WebSocket(`ws${ssl ? 's' : ''}://${host}`);
 
     let actions = Object.create(null);
@@ -153,3 +153,7 @@ function main(host = 'localhost:3500', ssl = false) {
         onError(callback) { setCallbackByKey(events, 'error', callback); },
     };
 }
+
+//--------------------------------------------------
+
+module.exports = mio;

@@ -33,10 +33,6 @@ ws.listen(3500);
 
 Client:
 ```javascript
-<script src="http://localhost:3500/socket.me"></script>
-
-// ...
-
 const ws = mio('localhost:3500');
 
 //---]>
@@ -46,6 +42,18 @@ ws.onConnect(() => {
 });
 
 ws.on('someEvent', (data) => { });
+```
+
+
+Nuxt.js:
+```javascript
+<script src="http://localhost:3500/socket.me"></script>
+```
+
+
+Browser:
+```javascript
+import mio from 'socket.me/client';
 ```
 
 
