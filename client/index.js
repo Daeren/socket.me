@@ -1,5 +1,6 @@
 ﻿function mio(host = 'localhost:3500', ssl = false) {
     return createSocket();
+
     //---]>
 
     function createSocket() {
@@ -26,6 +27,10 @@
             events.connected();
         };
 
+        socket.onclose = function(event) {
+            events.close(event.wasClean, event.code, event.reason);
+        };
+
         socket.onmessage = function({ data }) {
             events.data(data);
 
@@ -38,8 +43,10 @@
             if(!d) {
                 return;
             }
-            else if(d instanceof Error) {
+
+            if(d instanceof Error) {
                 events.error(d.message, d);
+                return;
             }
 
             //---]>
@@ -56,12 +63,8 @@
             }
         };
 
-        socket.onclose = function(event) {
-            events.close(event.wasClean, event.code, event.reason);
-        };
-
-        socket.onerror = function(error) {
-            events.error(error.message, error);
+        socket.onerror = function(event) {
+            events.error(event.message, event);
         };
 
         //---]>

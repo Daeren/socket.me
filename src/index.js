@@ -68,7 +68,8 @@ module.exports = function SocketMe(options) {
 
         onConnection(callback) {
             events.on('connection', (socket) => {
-                callback(socket.__refSMSocket = new Socket(socket));
+                socket = socket.__refSMSocket = new Socket(socket);
+                callback(socket);
             });
         }
         onDisconnect(callback) {
