@@ -12,11 +12,14 @@ const reDeflate = /\bdeflate\b/;
 const reGzip = /\bgzip\b/;
 const reBr = /\bbr\b/;
 
+
+const filePath = path.join(__dirname, '..', '..', 'client', 'index.js');
+
 //--------------------------------------------------
 
 module.exports = function(packets) {
     const libPayload = `\r\n(window.mio && (window.mio.__staticPackets=${JSON.stringify(packets)}));`;
-    const libData = fs.readFileSync(path.join(__dirname, '..', 'client', 'index.js')) + libPayload;
+    const libData = fs.readFileSync(filePath) + libPayload;
 
     const brParams =  {
         [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,

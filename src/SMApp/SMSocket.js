@@ -2,11 +2,12 @@
 
 //---]>
 
-const { pack } = require('./messagePacker');
+const { assertBindEvent, assertCallEvent } = require('./../safe');
+const { pack } = require('./../messagePacker');
 
 //--------------------------------------------------
 
-class Socket {
+class SMSocket {
     __socket = null;
     __events = new EventEmitter();
 
@@ -32,15 +33,7 @@ class Socket {
     //---]>
 
     on(type, callback) {
-        if(typeof type !== 'string') {
-            throw new Error('Socket.on | invalid `type` (non string): ' + type);
-        }
-
-        if(typeof callback !== 'function') {
-            throw new Error('Socket.on | invalid `callback` (non function): ' + callback);
-        }
-
-        //---]>
+        assertBindEvent(type, callback);
 
         this.__events.on(type, (data, response) => {
             callback(data, response);
@@ -48,9 +41,7 @@ class Socket {
     }
 
     emit(type, data) {
-        if(typeof type !== 'string') {
-            throw new Error('Socket.emit | invalid `type` (non string): ' + type);
-        }
+        assertCallEvent(type);
 
         this.__send(type, undefined, data);
     }
@@ -58,4 +49,4 @@ class Socket {
 
 //--------------------------------------------------
 
-module.exports = Socket;
+module.exports = SMSocket;

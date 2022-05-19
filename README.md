@@ -14,7 +14,7 @@ Server:
 const ws = mio({
     idleTimeout: 8,
     maxBackpressure: 1024,
-    maxPayloadLength: 512,
+    maxPayloadLength: 512
 });
 
 //---]>
@@ -33,6 +33,10 @@ ws.listen(3500);
 
 Client:
 ```javascript
+<script src="http://localhost:3500/socket.me"></script>
+
+// ...
+
 const ws = mio('localhost:3500');
 
 //---]>

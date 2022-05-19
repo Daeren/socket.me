@@ -137,10 +137,10 @@
 
             //---]>
 
-            onConnected(callback) { events.connected = callback; },
-            onClose(callback) { events.close = callback; },
-            onData(callback) { events.data = callback; },
-            onError(callback) { events.error = callback; }
+            onConnected(callback) { safeSetCallbackByKey(events, 'connected', callback); },
+            onClose(callback) { safeSetCallbackByKey(events, 'close', callback); },
+            onData(callback) { safeSetCallbackByKey(events, 'data', callback); },
+            onError(callback) { safeSetCallbackByKey(events, 'error', callback); },
         };
     }
 
@@ -164,6 +164,7 @@
     }
 
     //---]>
+
     /**
      *
      * @param {(undefined|string)} type
@@ -210,14 +211,30 @@
         return null;
     }
 
+    //---]>
+
     /**
      *
      * @param {object} table
-     * @param {string} type
+     * @param {string} key
+     * @param {Function} callback
+     */
+    function safeSetCallbackByKey(table, key, callback) {
+        if(typeof callback !== 'function') {
+            throw new Error('setCallbackByKey | invalid `callback` (non function): ' + key);
+        }
+
+        table[key] = callback;
+    }
+
+    /**
+     *
+     * @param {object} table
+     * @param {string} key
      * @param {any} payload
      */
-    function silentCallByKey(table, type, payload) {
-        const action = table[type];
+    function silentCallByKey(table, key, payload) {
+        const action = table[key];
 
         if(action) {
             action(payload);
