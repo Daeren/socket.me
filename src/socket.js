@@ -1,5 +1,9 @@
 ﻿const EventEmitter = require('events');
 
+//---]>
+
+const { pack } = require('./messagePacker');
+
 //--------------------------------------------------
 
 class Socket {
@@ -10,6 +14,19 @@ class Socket {
 
     constructor(socket) {
         this.__socket = socket;
+    }
+
+    //---]>
+
+    __send(type, ack, data) {
+        const isBinary = true;
+        const d = pack(typeof ack !== 'undefined' ? undefined : type, ack, data);
+
+        if(d instanceof Error) {
+            throw d;
+        }
+
+        this.__socket.send(d, isBinary);
     }
 
     //---]>
@@ -31,8 +48,11 @@ class Socket {
     }
 
     emit(type, data) {
-        const isBinary = true;
-        this.__socket.send(JSON.stringify([type, data]), isBinary);
+        if(typeof type !== 'string') {
+            throw new Error('Socket.emit | invalid `type` (non string): ' + type);
+        }
+
+        this.__send(type, undefined, data);
     }
 }
 

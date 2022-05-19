@@ -12,6 +12,10 @@ export type SMAppEventDisconnection = (socket: SMSocket) => void;
 export type SMAppEventError = (message: string, e: Error, socket: SMSocket) => void;
 
 export interface SMApp {
+    listenSocket: null | object; // uws
+
+    //---]>
+
     get isListen(): boolean;
 
     //---]>

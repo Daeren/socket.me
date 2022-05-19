@@ -5,7 +5,8 @@
 #### Goals:
 1. Low memory usage;
 2. Maximum performance;
-3. Flexibility.
+3. Flexibility;
+4. Security (politic-free).
 
 
 Server:
@@ -20,14 +21,14 @@ const ws = mio({
 
 ws.onConnection((socket) => {
     socket.on('message', (text, response) => {
+        response(`${text} world`);
         socket.emit('someEvent', text);
-        response(text + ' world');
     });
 });
 
 //---]>
 
-ws.listen(3500)
+ws.listen(3500);
 ```
 
 Client:
@@ -36,11 +37,11 @@ const ws = mio('localhost:3500');
 
 //---]>
 
-ws.on('someEvent', (data) => { });
-
 ws.onConnected(() => {
     ws.emit('message', 'hello', (r) => console.log(r));
 });
+
+ws.on('someEvent', (data) => { });
 ```
 
 

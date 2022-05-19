@@ -1,6 +1,13 @@
 ﻿const EventEmitter = require('events');
 
+//---]>
+
 const uws = require('@daeren/uws');
+
+//---]>
+
+const safeOnceCall = require('./safeOnceCall');
+const { unpack } = require('./messagePacker');
 
 const Socket = require('./socket');
 
@@ -41,44 +48,31 @@ module.exports = function SocketMe(options) {
                 return;
             }
 
+            //---]>
+
             const s = ws.__refSMSocket;
+            const d = unpack(data);
 
             //---]>
 
-            let d;
-
-            try {
-                d = JSON.parse(Buffer.from(data));
-            }
-            catch(e) {
-                eventBus.emit('error', e.message, e, s);
-            }
-
-            if(!Array.isArray(d)) {
+            if(!d) {
                 return;
+            }
+            else if(d instanceof Error) {
+                eventBus.emit('error', d.message, d, s);
             }
 
             //---]>
 
             const dSize = d.length;
 
-            if(dSize !== 2 && dSize !== 3) {
-                return;
-            }
-
-            //---]>
-
             let type;
             let ack;
             let payload;
 
-            let replyDone = false;
-            let replyCallback = (result) => {
-                if(!replyDone) {
-                    replyDone = true;
-                    s.emit(dSize === 2 ? type : ack, result);
-                }
-            };
+            const replyCallback = safeOnceCall((result) => {
+                s.__send(type, ack, result);
+            }, 'Socket.on | double call `response`: ' + type);
 
             //---]>
 
@@ -102,6 +96,10 @@ module.exports = function SocketMe(options) {
     //---]>
 
     class SMApp {
+        listenSocket = null;
+
+        //---]>
+
         get isListen() { return !!this.listenSocket }
 
         //---]>

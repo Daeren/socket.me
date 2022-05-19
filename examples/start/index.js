@@ -5,7 +5,7 @@ const mio = require('./../../.');
 const ws = mio({
     idleTimeout: 8,
     maxBackpressure: 1024,
-    maxPayloadLength: 512,
+    maxPayloadLength: 512
 });
 
 //--------------------------------------------------
@@ -18,7 +18,7 @@ ws.onConnection((socket) => {
     socket.on('createRoom', (code, response) => {
         console.log('createRoom', code);
 
-        //socket.emit('createRoom', code); // ответ в общее событие
+        socket.emit('createRoom', code); // ответ в общее событие
 
         response('+'); // ответ лично в запрос или в общее событие
     });
