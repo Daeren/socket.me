@@ -25,7 +25,7 @@ ws.onConnection((socket) => {
 });
 
 ws.onDisconnect((socket) => {
-    console.log('onDisconnect');
+    console.log('onDisconnect', socket);
 });
 
 ws.onError((message) => {

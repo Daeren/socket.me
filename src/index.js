@@ -22,76 +22,7 @@ module.exports = function SocketMe(options) {
 
     //---]>
 
-    const sendClientLib = require('./sendClientLib')(options.packets);
-
-    const eventBus = new EventEmitter();
-    const uwsApp = uws.App({});
-
-    //---]>
-
-    uwsApp
-        .get('/*', (res) => res.end(''))
-        .ws('/*', {
-        ...options,
-
-        //---]>
-
-        open(ws) {
-            eventBus.emit('connection', ws);
-        },
-        close(ws) {
-            eventBus.emit('disconnect', ws);
-        },
-
-        message(ws, data, isBinary) {
-            if(!isBinary || !data) {
-                return;
-            }
-
-            //---]>
-
-            const s = ws.__refSMSocket;
-            const d = unpack(data);
-
-            //---]>
-
-            if(!d) {
-                return;
-            }
-            else if(d instanceof Error) {
-                eventBus.emit('error', d.message, d, s);
-            }
-
-            //---]>
-
-            const dSize = d.length;
-
-            let type;
-            let ack;
-            let payload;
-
-            const replyCallback = safeOnceCall((result) => {
-                s.__send(type, ack, result);
-            }, 'Socket.on | double call `response`: ' + type);
-
-            //---]>
-
-            if(dSize === 2) {
-                [type, payload] = d;
-            }
-            else if(dSize === 3) {
-                [type, ack, payload] = d;
-            }
-
-            //---]>
-
-            s.__events.emit(type, payload, replyCallback);
-        }
-    });
-
-    if(options.clientLibPath) {
-        uwsApp.get('/' + options.clientLibPath, (response, request) => sendClientLib(request.getHeader('accept-encoding'), response));
-    }
+    const { app: uwsApp, events } = createUWS(options);
 
     //---]>
 
@@ -136,19 +67,18 @@ module.exports = function SocketMe(options) {
         //---]>
 
         onConnection(callback) {
-            eventBus.on('connection', (socket) => {
-                socket = socket.__refSMSocket = new Socket(socket);
-                callback(socket);
+            events.on('connection', (socket) => {
+                callback(socket.__refSMSocket = new Socket(socket));
             });
         }
         onDisconnect(callback) {
-            eventBus.on('disconnect', (socket) => {
+            events.on('disconnect', (socket) => {
                 callback(socket.__refSMSocket);
             });
         }
         onError(callback) {
-            eventBus.on('error', (message, e, socket) => {
-                callback(message, e, socket.__refSMSocket);
+            events.on('error', (e, socket) => {
+                callback(e.message, e, socket.__refSMSocket);
             });
         }
     }
@@ -157,3 +87,78 @@ module.exports = function SocketMe(options) {
 
     return new SMApp();
 };
+
+//--------------------------------------------------
+
+function createUWS(options) {
+    const sendClientLib = require('./sendClientLib')(options.packets);
+
+    //---]>
+
+    const app = uws.App({});
+    const events = new EventEmitter();
+
+    //---]>
+
+    app
+        .get('/*', (res) => res.end(''))
+        .ws('/*', {
+            ...options,
+
+            //---]>
+
+            open(ws) { events.emit('connection', ws); },
+            close(ws) { events.emit('disconnect', ws); },
+
+            message(ws, data, isBinary) {
+                if(!isBinary || !data) {
+                    return;
+                }
+
+                //---]>
+
+                const s = ws.__refSMSocket;
+                const d = unpack(data);
+
+                //---]>
+
+                if(!d) {
+                    return;
+                }
+                else if(d instanceof Error) {
+                    events.emit('error', d, s);
+                }
+
+                //---]>
+
+                let type, ack, payload;
+
+                if(d.length === 2) {
+                    [type, payload] = d;
+                }
+                else {
+                    [type, ack, payload] = d;
+                }
+
+                //---]>
+
+                const replyCallback = safeOnceCall((result) => {
+                    s.__send(type, ack, result);
+                }, 'Socket.on | double call `response`: ' + type);
+
+                //---]>
+
+                s.__events.emit(type, payload, replyCallback);
+            }
+        });
+
+    //---]>
+
+    if(options.clientLibPath) {
+        app.get('/' + options.clientLibPath, (response, request) => sendClientLib(request.getHeader('accept-encoding'), response));
+    }
+
+    //---]>
+
+    return { app, events };
+}
