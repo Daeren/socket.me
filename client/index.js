@@ -7,10 +7,10 @@
 
         const actions = Object.create(null);
         const events = {
-            connected() {},
-            close(wasClean, code, reason) {},
-            data(data) {},
-            error(message, error) {}
+            connected() { /* NOP */ },
+            close(_wasClean, _code, _reason) { /* NOP */ },
+            data(_data) { /* NOP */ },
+            error(_message, _error) { /* NOP */ }
         };
 
         const callbacksAck = Object.create(null);
@@ -22,7 +22,7 @@
 
         //---]>
 
-        socket.onopen = function(e) {
+        socket.onopen = function() {
             events.connected();
         };
 
