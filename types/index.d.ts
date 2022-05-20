@@ -25,9 +25,11 @@ export interface SMSocket {
 
 export type SMAppEventConnection = (socket: SMSocket) => void;
 export type SMAppEventDisconnection = (socket: SMSocket) => void;
+export type SMAppEventDrain = (socket: SMSocket, bufferedAmount: number) => void;
 export type SMAppEventError = (message: string, e: Error, socket: SMSocket) => void;
 
 export interface SMApp {
+    get bufferedAmount(): number;
     get listening(): boolean;
 
     //---]>
@@ -39,6 +41,7 @@ export interface SMApp {
 
     onConnection(callback: SMAppEventConnection): void;
     onDisconnect(callback: SMAppEventDisconnection): void;
+    onDrain(callback: SMAppEventDrain): void;
     onError(callback: SMAppEventError): void;
 }
 
@@ -78,6 +81,7 @@ export type SMAppOptions = {
     /** Maximum length of allowed backpressure per socket when publishing or sending messages. Slow receivers with too high backpressure will be skipped until they catch up or timeout. Defaults to 1024 * 1024. */
     maxBackpressure?: number;
     /** Whether or not we should automatically send pings to uphold a stable connection given whatever idleTimeout. */
+    sendPingsAutomatically?: boolean;
 }
 
 export interface SocketMe {

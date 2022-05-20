@@ -2,11 +2,6 @@
 
 //---]>
 
-const { onceCall } = require('./../shared/safe');
-const { unpack } = require('./../shared/messagePacker');
-
-//---]>
-
 const SendClientLib = require('./sendClientLib');
 
 //--------------------------------------------------
@@ -22,7 +17,10 @@ function UWSApp(options) {
     const events = {
         connection(_ws) { /* NOP */ },
         disconnect(_ws) { /* NOP */ },
-        error(_error, _ws) { /* NOP */ }
+        drain(_ws, _bufferedAmount) { /* NOP */ },
+        error(_error, _ws) { /* NOP */ },
+
+        data(_ws, _data) { /* NOP */ }
     };
 
     //---]>
@@ -46,34 +44,11 @@ function bindWsReq(app, options, events) {
 
         open(ws) { events.connection(ws); },
         close(ws) { events.disconnect(ws); },
+        drain(ws) { events.drain(ws, ws.getBufferedAmount()); },
 
-        message(ws, data) {
-            const d = unpack(data);
-
-            //---]>
-
-            if(!d) {
-                return;
-            }
-
-            if(d instanceof Error) {
-                events.error(d, ws);
-                return;
-            }
-
-            //---]>
-
-            const s = ws.__refSMSocket;
-            const [type, ack, payload] = d;
-
-            const action = s.__actions[type];
-
-            if(action) {
-                const response = onceCall((result) => {
-                    return s.__send(type, ack, result);
-                }, 'Socket.on | double call `response`: ' + type);
-
-                action(payload, response);
+        message(ws, data, isBinary) {
+            if(isBinary) {
+                events.data(ws, data);
             }
         }
     });

@@ -134,6 +134,7 @@ function mio(host = 'localhost:3500', ssl = false) {
 
                 //---]>
                 // looking for a free slot
+
                 for(let i = 1; i < 256; ++i, ++lastAck) {
                     lastAck %= 256; // protocol: u8 - 256
 

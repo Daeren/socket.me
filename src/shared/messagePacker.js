@@ -118,8 +118,7 @@ function unpack(buffer) {
                 data = data.buffer;
             }
             else if((mode & C_MODE_JSON) === C_MODE_JSON) {
-                data = dec.decode(data);
-                data = JSON.parse(data);
+                data = JSON.parse(dec.decode(data));
             }
         }
     }

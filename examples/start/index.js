@@ -34,8 +34,8 @@ ws.onConnection((socket) => {
         }
     });
 
-    socket.on('error', (code, response) => {
-        response('-');
+    socket.on('error', (data, response) => {
+        response(data);
     });
 });
 
