@@ -38,7 +38,7 @@ const ws = mio('localhost:3500');
 //---]>
 
 ws.onConnect(() => {
-    const bytes = ws.emit('message', 'hello', (r) => console.log(r), 2000/*[timeout]*/);
+    const buffer = ws.emit('message', 'hello', (r) => console.log(r), 2000/*[timeout]*/);
 });
 
 ws.on('someEvent', (data) => {});

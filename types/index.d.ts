@@ -18,7 +18,7 @@ export interface SMSocket {
     on(type: string, callback: SMSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data?: SMSocketSendData): number;
+    emit(type: string, data?: SMSocketSendData): ArrayBuffer;
 }
 
 //--------------------------------------------------

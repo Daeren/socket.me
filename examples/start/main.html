@@ -32,8 +32,8 @@
         //---]>
 
         setTimeout(() => {
-            const bytes = s.emit('createRoom', 200);
-            console.log('[bytes]', bytes);
+            const buffer = s.emit('createRoom', 200);
+            console.log('[arrayBuffer]', buffer);
         }, 1000);
 
         setTimeout(() => {
@@ -44,6 +44,19 @@
         //---]>
 
         s.emit('error', 200, (r) => console.log('Личный ответ:', r));
+
+        //---]>
+        // stress test: ack
+
+        for(let i = 0; i < 240; i++) {
+            s.emit('message', 0, (r) => {});
+        }
+
+        setTimeout(() => {
+            for(let i = 0; i < 240; i++) {
+                s.emit('message', 0, (r) => {});
+            }
+        }, 2000);
     });
 
     s.onData((data) => {

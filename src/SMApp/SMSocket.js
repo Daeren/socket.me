@@ -19,7 +19,7 @@ function SMSocket(socket) {
 
         socket.send(d, isBinary);
 
-        return d.byteLength;
+        return d;
     };
 
     let actions = Object.create(null);

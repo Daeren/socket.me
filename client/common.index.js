@@ -381,13 +381,31 @@ function mio(host = 'localhost:3500', ssl = false) {
             if(callback) {
                 let tm;
 
-                ack = lastAck++
+                //---]>
+                // looking for a free slot
+                for(let i = 1; i < 256; ++i, ++lastAck) {
+                    lastAck %= 256; // protocol: u8 - 256
+
+                    if(!callbacksAck[lastAck]) {
+                        ack = lastAck;
+                        break;
+                    }
+                }
+
+                if(ack === null) {
+                    throw new Error('Failed to allocate space for the request: ' + type);
+                }
+
+                //---]>
+
                 callbacksAck[ack] = (r) => {
                     clearTimeout(tm);
                     delete callbacksAck[ack];
 
                     callback(r);
                 };
+
+                //---]>
 
                 timeout = typeof timeout === 'undefined' ? responseTimeout : timeout;
 
@@ -410,7 +428,7 @@ function mio(host = 'localhost:3500', ssl = false) {
 
             //---]>
 
-            return d.byteLength;
+            return d;
         },
 
         //---]>

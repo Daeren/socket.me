@@ -31,7 +31,7 @@ export interface CSocket {
     on(type: string, callback: CSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data?: CSocketSendData, response?: CSocketEventResponse, timeout?: number): number;
+    emit(type: string, data?: CSocketSendData, response?: CSocketEventResponse, timeout?: number): ArrayBuffer;
 
     //---]>
 
