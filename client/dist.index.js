@@ -112,6 +112,8 @@ const C_MODE_EMPTY = 8;
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 
+const unpackCache = [undefined, undefined, undefined];
+
 //--------------------------------------------------
 
 /**
@@ -181,7 +183,7 @@ function pack(type, ack, data) {
  * @returns {(null|Error|Array)}
  */
 function unpack(buffer) {
-    if(buffer instanceof ArrayBuffer === false) {
+    if(buffer instanceof ArrayBuffer === false || !buffer.byteLength) {
         return null;
     }
 
@@ -200,33 +202,44 @@ function unpack(buffer) {
 
     //---]>
 
-    mode = bufView[offset];
-    offset += 1;
+    try {
+        mode = bufView[offset];
+        offset += 1;
 
-    typeLen = bufView[offset];
-    offset += 1;
+        typeLen = bufView[offset];
+        offset += 1;
 
-    type = dec.decode(bufView.slice(offset, offset + typeLen));
-    offset += typeLen;
+        type = dec.decode(bufView.slice(offset, offset + typeLen));
+        offset += typeLen;
 
-    ack = (mode & C_MODE_ACK) === C_MODE_ACK ? bufView[offset] : undefined;
-    offset += 1;
+        ack = (mode & C_MODE_ACK) === C_MODE_ACK ? bufView[offset] : undefined;
+        offset += 1;
 
-    if((mode & C_MODE_EMPTY) !== C_MODE_EMPTY) {
-        data = bufView.slice(offset, buffer.byteLength);
+        if((mode & C_MODE_EMPTY) !== C_MODE_EMPTY) {
+            data = bufView.slice(offset, buffer.byteLength);
 
-        if((mode & C_MODE_BIN) === C_MODE_BIN) {
-            data = data.buffer;
+            if((mode & C_MODE_BIN) === C_MODE_BIN) {
+                data = data.buffer;
+            }
+            else if((mode & C_MODE_JSON) === C_MODE_JSON) {
+                data = dec.decode(data);
+                data = JSON.parse(data);
+            }
         }
-        else if((mode & C_MODE_JSON) === C_MODE_JSON) {
-            data = dec.decode(data);
-            data = JSON.parse(data);
-        }
+    }
+    catch(e) {
+        return e;
     }
 
     //---]>
+    
+    unpackCache[0] = type;
+    unpackCache[1] = ack;
+    unpackCache[2] = data;
 
-    return [type, ack, data];
+    //---]>
+
+    return unpackCache;
 }
 
 //--------------------------------------------------

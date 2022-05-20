@@ -60,6 +60,40 @@ test('6. pack > unpack', () => {
     assert.deepStrictEqual(a, e);
 });
 
+test('7. unpack', () => {
+    const a = unpack(undefined);
+    const e = null;
+
+    assert.strictEqual(a, e);
+});
+
+test('8. unpack', () => {
+    const a = unpack(new ArrayBuffer(0));
+    const e = null;
+
+    assert.strictEqual(a, e);
+});
+
+test('9. unpack', () => {
+    const [type, ack] = unpack(new ArrayBuffer(20));
+
+    const a = [type, ack];
+    const e = ['', undefined];
+
+    assert.deepStrictEqual(a, e);
+});
+
+test('10. unpack', () => {
+    const buf = new ArrayBuffer(20);
+    const bufView = new Uint8Array(buf);
+
+    bufView[0] = 2; // json
+
+    const a = unpack(buf);
+
+    assert.strictEqual(a instanceof Error, true);
+});
+
 //--------------------------------------------------
 
 function str2ab(str) {
