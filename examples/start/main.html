@@ -22,14 +22,25 @@
     s.onConnect(() => {
         console.log("[open] Соединение установлено");
 
+        //---]>
+
+        s.setResponseTimeout(3500); // для всех личных ответов установим по умолчанию таймаут
+
+        s.emit('notFoundEvent', 404, (r) => console.log('notFoundEvent (3500):', r));
+        s.emit('notFoundEvent', 404, (r) => console.log('notFoundEvent (2000):', r), 2000);
+
+        //---]>
+
         setTimeout(() => {
             s.emit('createRoom', 200);
         }, 1000);
 
         setTimeout(() => {
-            s.emit('createRoom', 200, (r) => console.log('Личный ответ:', r));
-            s.emit('createRoom', 200, (r) => console.log('Личный ответ:', r));
+            s.emit('message', 200, (r) => console.log('Личный ответ:', r));
+            s.emit('message', 200, (r) => console.log('Личный ответ:', r));
         }, 2000);
+
+        //---]>
 
         s.emit('error', 200, (r) => console.log('Личный ответ:', r));
     });
@@ -44,7 +55,7 @@
         }
         else {
             // например, сервер убил процесс или сеть недоступна
-            // обычно в этом случае event.code 1006
+            // обычно в этом случае code 1006
             console.log('[close] Соединение прервано');
         }
     });

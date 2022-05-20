@@ -1,4 +1,8 @@
-export type SMSocketEvent = (data: any, response: (result: any) => void) => void;
+export type SMSocketClData = any;
+
+//--------------------------------------------------
+
+export type SMSocketEvent = (data: SMSocketClData, response: (result: any) => void) => void;
 
 export interface SMSocket {
     get remoteAddress(): string;
@@ -13,7 +17,7 @@ export interface SMSocket {
     on(type: string, callback: SMSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data: any): void;
+    emit(type: string, data?: any): void;
 }
 
 //--------------------------------------------------

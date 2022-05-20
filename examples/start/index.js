@@ -15,26 +15,27 @@ ws.onConnection((socket) => {
 
     //---]>
 
-    socket.on('error', (code, response) => {
-        console.log('error', code);
-        response('-'); // ответ лично в запрос или в общее событие (если изначально был общий запрос)
-
-        // socket.terminate();
-        // socket.terminate();
-        // socket.disconnect(1206, 'end');
-    });
-
-
-    socket.on('createRoom', (code, response) => {
-        console.log('createRoom', code);
-
+    socket.on('createRoom', (code) => {
         socket.emit('createRoom', code); // ответ в общее событие
-
-        response('+'); // ответ лично в запрос или в общее событие (если изначально был общий запрос)
     });
 
     socket.on('message', (text, response) => {
-        response(`${text} world`);
+        response(`${text} world`);  // ответ лично в запрос или в общее событие (если изначально был общий запрос)
+    });
+
+    socket.on('destroyMe', (silent, response) => {
+        response('ok');
+
+        if(silent) {
+            socket.terminate();
+        }
+        else {
+            socket.disconnect(1200, 'done');
+        }
+    });
+
+    socket.on('error', (code, response) => {
+        response('-');
     });
 });
 

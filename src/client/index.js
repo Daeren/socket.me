@@ -29,8 +29,9 @@ function mio(host = 'localhost:3500', ssl = false) {
     };
 
     const callbacksAck = Object.create(null);
-
     let lastAck = 0;
+
+    let responseTimeout = 0;
 
     //---]>
 
@@ -67,7 +68,7 @@ function mio(host = 'localhost:3500', ssl = false) {
         //---]>
 
         if(typeof ack === 'number') {
-            callbacksAck[ack](payload);
+            silentCallByKey(callbacksAck, ack, payload);
         }
         else {
             silentCallByKey(actions, type, payload);
@@ -81,6 +82,10 @@ function mio(host = 'localhost:3500', ssl = false) {
         get bufferedAmount() { return socket.bufferedAmount; },
 
         get connected() { return socket.readyState === 1; },
+
+        //---]>
+
+        setResponseTimeout(n) { responseTimeout = n; },
 
         //---]>
 
@@ -117,7 +122,7 @@ function mio(host = 'localhost:3500', ssl = false) {
             }
         },
 
-        emit(type, data, callback) {
+        emit(type, data, callback, timeout) {
             assertCallEvent(type);
 
             //---]>
@@ -125,11 +130,21 @@ function mio(host = 'localhost:3500', ssl = false) {
             let ack = null;
 
             if(callback) {
+                let tm;
+
                 ack = lastAck++
                 callbacksAck[ack] = (r) => {
+                    clearTimeout(tm);
                     delete callbacksAck[ack];
+
                     callback(r);
                 };
+
+                timeout = typeof timeout === 'undefined' ? responseTimeout : timeout;
+
+                if(timeout > 0 && isFinite(timeout)) {
+                    tm = setTimeout(callbacksAck[ack], timeout, new Error('Timeout'));
+                }
             }
 
             //---]>

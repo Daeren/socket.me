@@ -1,6 +1,6 @@
 {
   "name": "socket.me",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Fast Strong-typed WebSockets",
 
   "author": {
@@ -15,7 +15,7 @@
   },
 
   "scripts": {
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "build": "node scripts/build-client"
   },
 

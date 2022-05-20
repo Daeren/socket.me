@@ -1,4 +1,9 @@
-export type CSocketEvent = (data: any) => void;
+export type CSocketSrvData = any;
+
+//--------------------------------------------------
+
+export type CSocketEvent = (data: CSocketSrvData) => void;
+export type CSocketEventResponse = (result: (Error | CSocketSrvData)) => void;
 
 export type CSocketEventConnect = () => void;
 export type CSocketEventClose = (wasClean: boolean, code: number, reason: string) => void;
@@ -13,6 +18,10 @@ export interface CSocket {
 
     //---]>
 
+    setResponseTimeout(n: number): void;
+
+    //---]>
+
     send(data: any): void;
     close(code?: number, reason?: string): void;
 
@@ -21,7 +30,7 @@ export interface CSocket {
     on(type: string, callback: CSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data: any, response: (result: any) => void): void;
+    emit(type: string, data?: any, response?: CSocketEventResponse, timeout?: number): void;
 
     //---]>
 
