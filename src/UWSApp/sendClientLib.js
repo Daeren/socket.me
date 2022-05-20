@@ -14,14 +14,11 @@ const reDeflate = /\bdeflate\b/;
 const reGzip = /\bgzip\b/;
 const reBr = /\bbr\b/;
 
-const { dist: clientLib } = genClientLib();
+const { dist: libData } = genClientLib();
 
 //--------------------------------------------------
 
-module.exports = function(packets) {
-    const libPayload = `\r\n(window.mio && (window.mio.__staticPackets=${JSON.stringify(packets)}));`;
-    const libData = clientLib + libPayload;
-
+module.exports = function() {
     const brParams =  {
         [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
         [zlib.constants.BROTLI_PARAM_QUALITY]: zlib.constants.BROTLI_MAX_QUALITY,

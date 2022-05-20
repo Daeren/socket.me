@@ -62,7 +62,6 @@ export type CompressOptions = number;
 
 export type SMAppOptions = {
     clientLibPath?: 'socket.me';
-    packets?: object;
 
     ssl?: boolean,
     server?: ServerOptions;

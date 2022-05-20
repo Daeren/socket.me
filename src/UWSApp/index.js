@@ -80,13 +80,15 @@ function bindWsReq(app, options, events) {
 }
 
 function bindClientLibGetReq(app, options) {
-    const sendClientLib = SendClientLib(options.packets);
+    if(!options.clientLibPath) {
+        return;
+    }
 
     //---]>
 
-    if(options.clientLibPath) {
-        app.get('/' + options.clientLibPath, (response, request) => sendClientLib(request.getHeader('accept-encoding'), response));
-    }
+    const sendClientLib = SendClientLib();
+
+    app.get('/' + options.clientLibPath, (response, request) => sendClientLib(request.getHeader('accept-encoding'), response));
 }
 
 function bindDefaultGetReq(app) {
