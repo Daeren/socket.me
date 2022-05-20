@@ -38,10 +38,10 @@ const ws = mio('localhost:3500');
 //---]>
 
 ws.onConnect(() => {
-    ws.emit('message', 'hello', (r) => console.log(r), 2000/*[timeout]*/);
+    const bytes = ws.emit('message', 'hello', (r) => console.log(r), 2000/*[timeout]*/);
 });
 
-ws.on('someEvent', (data) => { });
+ws.on('someEvent', (data) => {});
 ```
 
 

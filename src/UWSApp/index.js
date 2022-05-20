@@ -70,7 +70,7 @@ function bindWsReq(app, options, events) {
 
             if(action) {
                 const response = onceCall((result) => {
-                    s.__send(type, ack, result);
+                    return s.__send(type, ack, result);
                 }, 'Socket.on | double call `response`: ' + type);
 
                 action(payload, response);

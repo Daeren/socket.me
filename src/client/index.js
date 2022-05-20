@@ -157,7 +157,11 @@ function mio(host = 'localhost:3500', ssl = false) {
 
             //---]>
 
-            this.send(d)
+            this.send(d);
+
+            //---]>
+
+            return d.byteLength;
         },
 
         //---]>

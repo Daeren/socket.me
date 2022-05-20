@@ -18,6 +18,8 @@ function SMSocket(socket) {
         }
 
         socket.send(d, isBinary);
+
+        return d.byteLength;
     };
 
     let actions = Object.create(null);
@@ -62,7 +64,7 @@ function SMSocket(socket) {
         emit(type, data) {
             assertCallEvent(type);
 
-            send(type, null, data);
+            return send(type, null, data);
         }
     };
 }

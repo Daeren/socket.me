@@ -1,8 +1,9 @@
 export type SMSocketClData = ArrayBuffer | any;
+export type SMSocketSendData = ArrayBuffer | Uint8Array | any;
 
 //--------------------------------------------------
 
-export type SMSocketEvent = (data: SMSocketClData, response: (result: any) => void) => void;
+export type SMSocketEvent = (data: SMSocketClData, response: (data?: SMSocketSendData) => number) => void;
 
 export interface SMSocket {
     get remoteAddress(): string;
@@ -17,7 +18,7 @@ export interface SMSocket {
     on(type: string, callback: SMSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data?: ArrayBuffer | Uint8Array | any): void;
+    emit(type: string, data?: SMSocketSendData): number;
 }
 
 //--------------------------------------------------

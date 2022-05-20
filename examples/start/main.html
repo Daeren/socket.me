@@ -32,7 +32,8 @@
         //---]>
 
         setTimeout(() => {
-            s.emit('createRoom', 200);
+            const bytes = s.emit('createRoom', 200);
+            console.log('[bytes]', bytes);
         }, 1000);
 
         setTimeout(() => {
