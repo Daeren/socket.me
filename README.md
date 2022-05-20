@@ -38,7 +38,7 @@ const ws = mio('localhost:3500');
 //---]>
 
 ws.onConnect(() => {
-    ws.emit('message', 'hello', (r) => console.log(r));
+    ws.emit('message', 'hello', (r) => console.log(r), 2000/*[timeout]*/);
 });
 
 ws.on('someEvent', (data) => { });
@@ -54,6 +54,18 @@ Browser:
 Nuxt.js:
 ```javascript
 import mio from 'socket.me/client';
+```
+
+
+Protocol:
+```
+[mode (u8), typeLen (u8), type (str), ack (u8), data (bin|str)]
+[0-255, 0-255, ..., 0-255, ...]
+
+C_MODE_BIN   = 1
+C_MODE_JSON  = 2
+C_MODE_ACK   = 4
+C_MODE_EMPTY = 8
 ```
 
 

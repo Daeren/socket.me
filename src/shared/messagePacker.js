@@ -1,59 +1,128 @@
-﻿/**
+﻿const C_MODE_BIN = 1;
+const C_MODE_JSON = 2;
+const C_MODE_ACK = 4;
+const C_MODE_EMPTY = 8;
+
+//--------------------------------------------------
+
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+//--------------------------------------------------
+
+/**
  *
  * @param {string} type
  * @param {(null|number)} ack
- * @param {object} data
+ * @param {(ArrayBuffer|object)} data
  * @returns {(Error|ArrayBuffer)}
  */
 function pack(type, ack, data) {
-    return str2ab(JSON.stringify([type, ack, data]));
+    const isUB = data instanceof Uint8Array;
+    const isAB = isUB || data instanceof ArrayBuffer;
+    const isEmpty = typeof data === 'undefined';
+
+    //---]>
+
+    const typeBuf = enc.encode(type);
+    const dataBuf = isAB ? (isUB ? data : new Uint8Array(data)) : (isEmpty ? null : enc.encode(JSON.stringify(data)));
+
+    //---]>
+
+    const dataSize = isEmpty ? 0 : dataBuf.byteLength;
+    const typeLen = typeBuf.byteLength;
+
+    const bufSize = (1) + (1 + typeLen) + (1) + (dataSize);
+    const buffer = new ArrayBuffer(bufSize);
+    const bufView = new Uint8Array(buffer)
+
+    //---]>
+
+    let offset = 0;
+
+    //---]>
+
+    // mode
+    bufView[offset] = (isAB ? C_MODE_BIN : C_MODE_JSON) | (typeof ack === 'number' ? C_MODE_ACK : 0) | (isEmpty ? C_MODE_EMPTY : 0);
+    offset += 1;
+
+    // type length
+    bufView[offset] = typeLen;
+    offset += 1;
+
+    // type
+    for(let i = 0; i < typeLen; i++) {
+        bufView[offset] = typeBuf[i];
+        offset += 1;
+    }
+
+    // ack
+    bufView[offset] = ack;
+    offset += 1;
+
+    // data
+    for(let i = 0; i < dataSize; i++) {
+        bufView[offset] = dataBuf[i];
+        offset += 1;
+    }
+
+    //---]>
+
+    return buffer;
 }
 
 /**
  *
- * @param {ArrayBuffer} data
+ * @param {ArrayBuffer} buffer
  * @returns {(null|Error|Array)}
  */
-function unpack(data) {
-    if(data instanceof ArrayBuffer) {
-        try {
-            const d = JSON.parse(ab2str(data));
+function unpack(buffer) {
+    if(buffer instanceof ArrayBuffer === false) {
+        return null;
+    }
 
-            // type, ack, data
-            if(Array.isArray(d) && d.length === 3) {
-                const ack = d[1];
+    //---]>
 
-                if(typeof ack === 'number' || ack === null) {
-                    return d;
-                }
-            }
+    let offset = 0;
+
+    let mode;
+    let type, typeLen;
+    let ack;
+    let data;
+
+    //---]>
+
+    const bufView = new Uint8Array(buffer)
+
+    //---]>
+
+    mode = bufView[offset];
+    offset += 1;
+
+    typeLen = bufView[offset];
+    offset += 1;
+
+    type = dec.decode(bufView.slice(offset, offset + typeLen));
+    offset += typeLen;
+
+    ack = (mode & C_MODE_ACK) === C_MODE_ACK ? bufView[offset] : undefined;
+    offset += 1;
+
+    if((mode & C_MODE_EMPTY) !== C_MODE_EMPTY) {
+        data = bufView.slice(offset, buffer.byteLength);
+
+        if((mode & C_MODE_BIN) === C_MODE_BIN) {
+            data = data.buffer;
         }
-        catch(e) {
-            return e;
+        else if((mode & C_MODE_JSON) === C_MODE_JSON) {
+            data = dec.decode(data);
+            data = JSON.parse(data);
         }
     }
 
-    return null;
-}
+    //---]>
 
-//--------------------------------------------------
-// todo: rework (bin packer)
-
-function ab2str(buf) {
-    return new Uint8Array(buf).reduce((data, byte) => (data + String.fromCharCode(byte)), '');
-}
-
-function str2ab(str) {
-    const len = str.length;
-
-    const buf = new ArrayBuffer(len);
-    const bufView = new Uint8Array(buf);
-
-    for(let i = 0; i < len; i++) {
-        bufView[i] = str.charCodeAt(i);
-    }
-
-    return buf;
+    return [type, ack, data];
 }
 
 //--------------------------------------------------
