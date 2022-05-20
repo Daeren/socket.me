@@ -119,8 +119,8 @@ const unpackCache = [undefined, undefined, undefined];
  *
  * @param {string} type
  * @param {(null|number)} ack
- * @param {(ArrayBuffer|object)} data
- * @returns {(Error|ArrayBuffer)}
+ * @param {(ArrayBuffer|Uint8Array|object)} data
+ * @returns {ArrayBuffer}
  */
 function pack(type, ack, data) {
     const isUB = data instanceof Uint8Array;
@@ -231,7 +231,7 @@ function unpack(buffer) {
     }
 
     //---]>
-    
+
     unpackCache[0] = type;
     unpackCache[1] = ack;
     unpackCache[2] = data;

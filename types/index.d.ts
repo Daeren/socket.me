@@ -1,4 +1,4 @@
-export type SMSocketClData = any;
+export type SMSocketClData = ArrayBuffer | any;
 
 //--------------------------------------------------
 
@@ -17,7 +17,7 @@ export interface SMSocket {
     on(type: string, callback: SMSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data?: any): void;
+    emit(type: string, data?: ArrayBuffer | Uint8Array | any): void;
 }
 
 //--------------------------------------------------
