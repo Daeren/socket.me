@@ -10,11 +10,15 @@ export interface SMSocket {
 
     //---]>
 
+    terminate(): void;
+    disconnect(code?: number, reason?: string): void;
+
+    //---]>
+
     subscribe(topic: string): void;
     unsubscribe(topic: string): void;
 
-    terminate(): void;
-    disconnect(code?: number, reason?: string): void;
+    publish(topic: string, type: string, data?: SMSocketSendData): ArrayBuffer;
 
     //---]>
 
@@ -29,7 +33,6 @@ export interface SMSocket {
 export type SMAppEventConnection = (socket: SMSocket) => void;
 export type SMAppEventDisconnection = (socket: SMSocket) => void;
 export type SMAppEventDrain = (socket: SMSocket, bufferedAmount: number) => void;
-export type SMAppEventError = (error: Error, socket: SMSocket) => void;
 
 export interface SMApp {
     get bufferedAmount(): number;
@@ -42,14 +45,13 @@ export interface SMApp {
 
     //---]>
 
-    publish(topic, type, data): ArrayBuffer;
+    publish(topic: string, type: string, data?: SMSocketSendData): ArrayBuffer;
 
     //---]>
 
     onConnection(callback: SMAppEventConnection): void;
     onDisconnect(callback: SMAppEventDisconnection): void;
     onDrain(callback: SMAppEventDrain): void;
-    onError(callback: SMAppEventError): void;
 }
 
 //--------------------------------------------------

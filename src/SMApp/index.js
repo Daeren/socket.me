@@ -17,12 +17,11 @@ const SMSocket = require('./SMSocket');
 //--------------------------------------------------
 
 function SMApp({ app, events }) {
-    let smSocket = null;
     let listenSocket = null;
 
     //---]>
 
-    setCallbackByKey(events, 'data', (_ws, buffer) => {
+    setCallbackByKey(events, 'data', (ws, buffer) => {
         const d = unpack(buffer);
 
         //---]>
@@ -34,6 +33,8 @@ function SMApp({ app, events }) {
         //---]>
 
         const [type, ack, data] = d;
+
+        const smSocket = ws.__refWS;
         const action = smSocket.__actions[type];
 
         if(action) {
@@ -41,12 +42,7 @@ function SMApp({ app, events }) {
                 return smSocket.__send(type, ack, result);
             }, 'Socket.on | double call `response`: ' + type);
 
-            try {
-                action(data, response);
-            }
-            catch(e) {
-                events.error(e);
-            }
+            action(data, response);
         }
     });
 
@@ -109,23 +105,19 @@ function SMApp({ app, events }) {
 
         onConnection(callback) {
             setCallbackByKey(events, 'connection', (ws) => {
-                smSocket = SMSocket(ws);
-                callback(smSocket);
+                const s = ws.__refWS = SMSocket(ws);
+                callback(s);
             });
         },
         onDisconnect(callback) {
-            setCallbackByKey(events, 'disconnect', (_ws) => {
-                callback(smSocket);
+            setCallbackByKey(events, 'disconnect', (ws) => {
+                callback(ws.__refWS);
+                delete ws.__refWS;
             });
         },
         onDrain(callback) {
-            setCallbackByKey(events, 'drain', (_ws, bufferedAmount) => {
-                callback(smSocket, bufferedAmount);
-            });
-        },
-        onError(callback) {
-            setCallbackByKey(events, 'error', (e) => {
-                callback(e, smSocket);
+            setCallbackByKey(events, 'drain', (ws, bufferedAmount) => {
+                callback(ws.__refWS, bufferedAmount);
             });
         }
     };

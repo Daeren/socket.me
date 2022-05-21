@@ -9,68 +9,32 @@
 
     <script src="http://localhost:3500/socket.me"></script>
     <script>
-    const s = mio('localhost:3500');
+    const ws = mio('localhost:3500');
 
     //---]>
 
-    s.on('createRoom', (data) => {
-        console.log('[srv.back] createRoom', data);
+    ws.on('someEvent', (data) => {
+        console.log('someEvent', data);
     });
 
     //---]>
 
-    s.onConnect(() => {
+    ws.onConnect(() => {
         console.log("[open] Соединение установлено");
 
         //---]>
 
-        s.setResponseTimeout(3500); // для всех личных ответов установим по умолчанию таймаут
+        ws.setResponseTimeout(3500);
 
-        s.emit('notFoundEvent', 404, (r) => console.log('notFoundEvent (3500):', r));
-        s.emit('notFoundEvent', 404, (r) => console.log('notFoundEvent (2000):', r), 2000);
-
-        //---]>
-
-        setTimeout(() => {
-            const buffer = s.emit('createRoom', 200);
-            console.log('[arrayBuffer]', buffer);
-        }, 1000);
-
-        setTimeout(() => {
-            s.emit('message', 200, (r) => console.log('Личный ответ:', r));
-            s.emit('message', 200, (r) => console.log('Личный ответ:', r));
-        }, 2000);
+        ws.emit('notFoundEvent', 404, (r) => console.log('notFoundEvent (3500):', r));
+        ws.emit('notFoundEvent', 404, (r) => console.log('notFoundEvent (2000):', r), 2000);
 
         //---]>
 
-        s.emit('error', 200, (r) => console.log('Личный ответ:', r));
-
-        //---]>
-        // stress test: ack
-
-        for(let i = 0; i < 240; i++) {
-            s.emit('message', 0, (r) => {});
-        }
-
-        setTimeout(() => {
-            for(let i = 0; i < 240; i++) {
-                s.emit('message', 0, (r) => {});
-            }
-        }, 2000);
-
-        //---]>
-        // broadcast test
-
-        setTimeout(() => {
-            s.emit('broadcast', 'echo!');
-        }, 2500);
+        ws.emit('message', 200, (r) => console.log('Личный ответ:', r));
     });
 
-    s.onData((data) => {
-        console.log(`[message] Данные получены: ${data}`);
-    });
-
-    s.onClose((wasClean, code, reason) => {
+    ws.onClose((wasClean, code, reason) => {
         if(wasClean) {
             console.log(`[close] Соединение закрыто чисто, код=${code} причина=${reason}`);
         }
@@ -81,8 +45,8 @@
         }
     });
 
-    s.onError((error) => {
-        console.log(`[error] ${error.message}`);
+    ws.onError((message) => {
+        console.log(`[error] ${message}`);
     });
     </script>
 </html>

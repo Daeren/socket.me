@@ -15,9 +15,16 @@ mio.onConnection((socket) => {
 
     //---]>
 
-    socket.on('message', (text, response) => {
-        response(`${text} world`);
-        socket.emit('someEvent', text);
+    socket.subscribe('all');
+
+    //---]>
+
+    socket.on('broadcast#1', (text) => {
+        mio.publish('all', 'someEvent', text);
+    });
+
+    socket.on('broadcast#2', (text) => {
+        socket.publish('all', 'someEvent', text);
     });
 });
 

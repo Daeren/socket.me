@@ -3,7 +3,8 @@
     assertRemoveEvent,
     assertCallEvent,
 
-    assertChangeTopic
+    assertChangeTopic,
+    assertPublishTopic
 } = require('./../shared/safe');
 
 const { pack } = require('./../shared/messagePacker');
@@ -34,6 +35,11 @@ function SMSocket(socket) {
 
         //---]>
 
+        terminate() { socket.close(); },
+        disconnect(code, reason) { socket.end(code, reason); },
+
+        //---]>
+
         subscribe(topic) {
             assertChangeTopic(topic);
             socket.subscribe(topic);
@@ -43,8 +49,22 @@ function SMSocket(socket) {
             socket.unsubscribe(topic);
         },
 
-        terminate() { socket.close(); },
-        disconnect(code, reason) { socket.end(code, reason); },
+        publish(topic, type, data) {
+            assertPublishTopic(topic, type);
+
+            //---]>
+
+            const isBinary = true;
+            const d = pack(type, null, data);
+
+            if(d instanceof Error) {
+                throw d;
+            }
+
+            socket.publish(topic, d, isBinary);
+
+            return d;
+        },
 
         //---]>
 

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+    </head>
+
+    <body></body>
+
+    <script src="http://localhost:3500/socket.me"></script>
+    <script>
+    const ws = mio('localhost:3500');
+
+    //---]>
+
+    ws.on('someEvent', (data) => {
+        console.log('someEvent', data);
+    });
+
+    //---]>
+
+    ws.onConnect(() => {
+        console.log("[open] Соединение установлено");
+
+        //---]>
+
+        ws.emit('broadcast#1', 'mio.publish'); // всем, включая себя
+        ws.emit('broadcast#2', 'socket.publish'); // всем, кроме себя
+    });
+    </script>
+</html>

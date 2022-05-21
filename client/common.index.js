@@ -299,7 +299,7 @@ function mio(host = 'localhost:3500', ssl = false) {
     const events = {
         connect() { /* NOP */ },
         close(_wasClean, _code, _reason) { /* NOP */ },
-        error(error) { throw error; },
+        error(_message, event) { throw event; },
         data(_data) { /* NOP */ }
     };
 
@@ -316,13 +316,7 @@ function mio(host = 'localhost:3500', ssl = false) {
 
     socket.onopen = function() { events.connect(); };
     socket.onclose = function(event) { events.close(event.wasClean, event.code, event.reason); };
-
-    socket.onerror = function(event) {
-        const e = new Error(event.message);
-
-        e.event = event;
-        events.error(e);
-    };
+    socket.onerror = function(event) { events.error(event.message, event); };
 
     socket.onmessage = function({ data }) {
         events.data(data);
@@ -347,16 +341,11 @@ function mio(host = 'localhost:3500', ssl = false) {
 
         //---]>
 
-        try {
-            if(typeof ack === 'number') {
-                silentCallByKey(callbacksAck, ack, payload);
-            }
-            else {
-                silentCallByKey(actions, type, payload);
-            }
+        if(typeof ack === 'number') {
+            silentCallByKey(callbacksAck, ack, payload);
         }
-        catch(e) {
-            events.error(e);
+        else {
+            silentCallByKey(actions, type, payload);
         }
     };
 
