@@ -45,8 +45,8 @@
         }
     });
 
-    ws.onError((message) => {
-        console.log(`[error] ${message}`);
+    ws.onError(() => {
+        console.log(`[error] Возникла ошибка`);
     });
     </script>
 </html>

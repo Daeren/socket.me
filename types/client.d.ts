@@ -10,7 +10,7 @@ export type CSocketEventResponse = (result: (Error | CSocketSrvData)) => void;
 export type CSocketEventConnect = () => void;
 export type CSocketEventClose = (wasClean: boolean, code: number, reason: string) => void;
 export type CSocketEventData = (data: any) => void;
-export type CSocketEventError = (message: string, event: Event) => void;
+export type CSocketEventError = () => void;
 
 export interface CSocket {
     get readyState(): number;
