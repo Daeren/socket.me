@@ -57,6 +57,13 @@
                 s.emit('message', 0, (r) => {});
             }
         }, 2000);
+
+        //---]>
+        // broadcast test
+
+        setTimeout(() => {
+            s.emit('broadcast', 'echo!');
+        }, 2500);
     });
 
     s.onData((data) => {

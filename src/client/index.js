@@ -108,13 +108,11 @@ function mio(host = 'localhost:3500', ssl = false) {
 
         on(type, callback) {
             assertBindEvent(type, callback);
-
             actions[type] = callback;
         },
         off(type) {
-            assertRemoveEvent(type);
-
-            if(type) {
+            if(arguments.length) {
+                assertRemoveEvent(type);
                 delete actions[type];
             }
             else {

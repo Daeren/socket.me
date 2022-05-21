@@ -11,7 +11,7 @@
 
 Server:
 ```javascript
-const ws = mio({
+const mio = SocketMe({
     idleTimeout: 8,
     maxBackpressure: 1024,
     maxPayloadLength: 512
@@ -19,19 +19,22 @@ const ws = mio({
 
 //---]>
 
-ws.onConnection((socket) => {
+mio.onConnection((socket) => {
+    socket.subscribe('all');
+    
     socket.on('message', (text, response) => {
         response(`${text} world`);
         socket.emit('someEvent', text);
+        mio.publish('all', 'someEvent', text);
     });
 });
 
 //---]>
 
-ws.listen(3500);
+mio.listen(3500);
 ```
 
-Client:
+Client (WebApp):
 ```javascript
 const ws = mio('localhost:3500');
 

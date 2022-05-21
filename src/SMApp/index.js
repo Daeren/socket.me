@@ -1,5 +1,14 @@
-﻿const { setCallbackByKey, onceCall } = require('./../shared/safe');
-const { unpack } = require('./../shared/messagePacker');
+﻿const uws = require('@daeren/uws');
+
+//---]>
+
+const {
+    onceCall,
+    setCallbackByKey,
+    assertPublishTopic
+} = require('./../shared/safe');
+
+const { pack, unpack } = require('./../shared/messagePacker');
 
 //---]>
 
@@ -13,23 +22,18 @@ function SMApp({ app, events }) {
 
     //---]>
 
-    setCallbackByKey(events, 'data', (ws, data) => {
-        const d = unpack(data);
+    setCallbackByKey(events, 'data', (ws, buffer) => {
+        const d = unpack(buffer);
 
         //---]>
 
-        if(!d) {
-            return;
-        }
-
-        if(d instanceof Error) {
-            events.error(d, ws);
+        if(!d || d instanceof Error) {
             return;
         }
 
         //---]>
 
-        const [type, ack, payload] = d;
+        const [type, ack, data] = d;
         const action = smSocket.__actions[type];
 
         if(action) {
@@ -37,7 +41,7 @@ function SMApp({ app, events }) {
                 return smSocket.__send(type, ack, result);
             }, 'Socket.on | double call `response`: ' + type);
 
-            action(payload, response);
+            action(data, response);
         }
     });
 
@@ -71,10 +75,29 @@ function SMApp({ app, events }) {
         },
         shutdown() {
             if(listenSocket) {
-                app.us_listen_socket_close(listenSocket);
+                uws.us_listen_socket_close(listenSocket);
             }
 
             listenSocket = null;
+        },
+
+        //---]>
+
+        publish(topic, type, data) {
+            assertPublishTopic(topic, type);
+
+            //---]>
+
+            const isBinary = true;
+            const d = pack(type, null, data);
+
+            if(d instanceof Error) {
+                throw d;
+            }
+
+            app.publish(topic, d, isBinary);
+
+            return d;
         },
 
         //---]>

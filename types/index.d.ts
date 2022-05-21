@@ -10,6 +10,9 @@ export interface SMSocket {
 
     //---]>
 
+    subscribe(topic: string): void;
+    unsubscribe(topic: string): void;
+
     terminate(): void;
     disconnect(code?: number, reason?: string): void;
 
@@ -36,6 +39,10 @@ export interface SMApp {
 
     listen(port: string, host?: string): Promise<boolean>;
     shutdown(): void;
+
+    //---]>
+
+    publish(topic, type, data): ArrayBuffer;
 
     //---]>
 

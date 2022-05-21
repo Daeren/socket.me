@@ -1,8 +1,8 @@
-const mio = require('./../../.');
+const SocketMe = require('./../../.');
 
 //--------------------------------------------------
 
-const ws = mio({
+const mio = SocketMe({
     idleTimeout: 8,
     maxBackpressure: 1024,
     maxPayloadLength: 512
@@ -10,13 +10,23 @@ const ws = mio({
 
 //--------------------------------------------------
 
-ws.onConnection((socket) => {
+mio.onConnection((socket) => {
     console.log('onConnection', socket.remoteAddress);
+
+    //---]>
+
+    socket.subscribe('all');
 
     //---]>
 
     socket.on('createRoom', (code) => {
         socket.emit('createRoom', code); // ответ в общее событие
+    });
+
+    //---]>
+
+    socket.on('broadcast', (text) => {
+        mio.publish('all', 'createRoom', text);
     });
 
     socket.on('message', (text, response) => {
@@ -39,16 +49,16 @@ ws.onConnection((socket) => {
     });
 });
 
-ws.onDisconnect((socket) => {
+mio.onDisconnect((socket) => {
     console.log('onDisconnect', socket);
 });
 
-ws.onError((message) => {
+mio.onError((message) => {
     console.log('onError', message);
 });
 
 //--------------------------------------------------
 
-ws.listen(3500).then((listenSocket) => {
+mio.listen(3500).then((listenSocket) => {
     console.log('[status] listening to port 3500:', listenSocket);
 });

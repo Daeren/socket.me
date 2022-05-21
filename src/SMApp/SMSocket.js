@@ -1,7 +1,9 @@
 ﻿const {
     assertBindEvent,
     assertRemoveEvent,
-    assertCallEvent
+    assertCallEvent,
+
+    assertChangeTopic
 } = require('./../shared/safe');
 
 const { pack } = require('./../shared/messagePacker');
@@ -36,24 +38,27 @@ function SMSocket(socket) {
 
         //---]>
 
-        terminate() {
-            socket.close();
+        subscribe(topic) {
+            assertChangeTopic(topic);
+            socket.subscribe(topic);
         },
-        disconnect(code, reason) {
-            socket.end(code, reason);
+        unsubscribe(topic) {
+            assertChangeTopic(topic);
+            socket.unsubscribe(topic);
         },
+
+        terminate() { socket.close(); },
+        disconnect(code, reason) { socket.end(code, reason); },
 
         //---]>
 
         on(type, callback) {
             assertBindEvent(type, callback);
-
             actions[type] = callback;
         },
         off(type) {
-            assertRemoveEvent(type);
-
-            if(type) {
+            if(arguments.length) {
+                assertRemoveEvent(type);
                 delete actions[type];
             }
             else {
@@ -63,7 +68,6 @@ function SMSocket(socket) {
 
         emit(type, data) {
             assertCallEvent(type);
-
             return send(type, null, data);
         }
     };

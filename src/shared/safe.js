@@ -70,6 +70,33 @@ function assertCallEvent(type) {
     }
 }
 
+//---]>
+
+/**
+ *
+ * @param {string} topic
+ */
+function assertChangeTopic(topic) {
+    if(typeof topic !== 'string') {
+        throw new Error('assertChangeTopic | invalid `topic` (non string): ' + topic);
+    }
+}
+
+/**
+ *
+ * @param {string} topic
+ * @param {string} type
+ */
+function assertPublishTopic(topic, type) {
+    if(typeof topic !== 'string') {
+        throw new Error('assertPublishTopic | invalid `topic` (non string): ' + topic);
+    }
+
+    if(typeof type !== 'string') {
+        throw new Error('assertPublishTopic | invalid `type` (non string): ' + type);
+    }
+}
+
 //--------------------------------------------------
 
 module.exports = {
@@ -79,5 +106,8 @@ module.exports = {
 
     assertBindEvent,
     assertRemoveEvent,
-    assertCallEvent
+    assertCallEvent,
+
+    assertChangeTopic,
+    assertPublishTopic
 };

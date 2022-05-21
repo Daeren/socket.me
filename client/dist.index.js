@@ -91,6 +91,33 @@ function assertCallEvent(type) {
     }
 }
 
+//---]>
+
+/**
+ *
+ * @param {string} topic
+ */
+function assertChangeTopic(topic) {
+    if(typeof topic !== 'string') {
+        throw new Error('assertChangeTopic | invalid `topic` (non string): ' + topic);
+    }
+}
+
+/**
+ *
+ * @param {string} topic
+ * @param {string} type
+ */
+function assertPublishTopic(topic, type) {
+    if(typeof topic !== 'string') {
+        throw new Error('assertPublishTopic | invalid `topic` (non string): ' + topic);
+    }
+
+    if(typeof type !== 'string') {
+        throw new Error('assertPublishTopic | invalid `type` (non string): ' + type);
+    }
+}
+
 //--------------------------------------------------
 
 module.exports = {
@@ -100,7 +127,10 @@ module.exports = {
 
     assertBindEvent,
     assertRemoveEvent,
-    assertCallEvent
+    assertCallEvent,
+
+    assertChangeTopic,
+    assertPublishTopic
 };
  })(global.safe);global.messagePacker = {};((module) => { ﻿const C_MODE_BIN = 1;
 const C_MODE_JSON = 2;
@@ -354,13 +384,11 @@ function mio(host = 'localhost:3500', ssl = false) {
 
         on(type, callback) {
             assertBindEvent(type, callback);
-
             actions[type] = callback;
         },
         off(type) {
-            assertRemoveEvent(type);
-
-            if(type) {
+            if(arguments.length) {
+                assertRemoveEvent(type);
                 delete actions[type];
             }
             else {
