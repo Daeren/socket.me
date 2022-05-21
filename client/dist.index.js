@@ -300,7 +300,7 @@ function mio(host = 'localhost:3500', ssl = false) {
     const events = {
         connect() { /* NOP */ },
         close(_wasClean, _code, _reason) { /* NOP */ },
-        error(_message, event) { throw event; },
+        error() { /* NOP */ },
         data(_data) { /* NOP */ }
     };
 
@@ -317,7 +317,11 @@ function mio(host = 'localhost:3500', ssl = false) {
 
     socket.onopen = function() { events.connect(); };
     socket.onclose = function(event) { events.close(event.wasClean, event.code, event.reason); };
-    socket.onerror = function(event) { events.error(event.message, event); };
+
+    // If the user agent was required to fail the WebSocket connection,
+    // or if the WebSocket connection was closed after being flagged as full,
+    // fire an event named error at the WebSocket object.
+    socket.onerror = function() { events.error(); };
 
     socket.onmessage = function({ data }) {
         events.data(data);
