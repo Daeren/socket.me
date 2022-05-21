@@ -22,7 +22,7 @@ function SMApp({ app, events }) {
 
     //---]>
 
-    setCallbackByKey(events, 'data', (ws, buffer) => {
+    setCallbackByKey(events, 'data', (_ws, buffer) => {
         const d = unpack(buffer);
 
         //---]>
@@ -119,7 +119,7 @@ function SMApp({ app, events }) {
             });
         },
         onDrain(callback) {
-            setCallbackByKey(events, 'drain', (ws, bufferedAmount) => {
+            setCallbackByKey(events, 'drain', (_ws, bufferedAmount) => {
                 callback(smSocket, bufferedAmount);
             });
         },

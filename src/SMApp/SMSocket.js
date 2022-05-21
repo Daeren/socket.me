@@ -15,10 +15,6 @@ function SMSocket(socket) {
         const isBinary = true;
         const d = pack(ack === null ? type : '', ack, data);
 
-        if(d instanceof Error) {
-            throw d;
-        }
-
         socket.send(d, isBinary);
 
         return d;

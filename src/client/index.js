@@ -132,7 +132,8 @@ function mio(host = 'localhost:3500', ssl = false) {
                 //---]>
                 // looking for a free slot
 
-                for(let i = 1; i < 256; ++i, ++lastAck) {
+                for(let i = 1; i < 256; ++i) {
+                    ++lastAck;
                     lastAck %= 256; // protocol: u8 - 256
 
                     if(!callbacksAck[lastAck]) {
@@ -166,10 +167,6 @@ function mio(host = 'localhost:3500', ssl = false) {
             //---]>
 
             const d = pack(type, ack, data);
-
-            if(d instanceof Error) {
-                throw d;
-            }
 
             //---]>
 
