@@ -53,19 +53,16 @@ function pack(type, ack, data) {
     offset += 1;
 
     // type
-    for(let i = 0; i < typeLen; i++) {
-        bufView[offset] = typeBuf[i];
-        offset += 1;
-    }
+    bufView.set(typeBuf, offset);
+    offset += typeLen;
 
     // ack
     bufView[offset] = ack;
     offset += 1;
 
     // data
-    for(let i = 0; i < dataSize; i++) {
-        bufView[offset] = dataBuf[i];
-        offset += 1;
+    if(dataBuf) {
+        bufView.set(dataBuf, offset);
     }
 
     //---]>
