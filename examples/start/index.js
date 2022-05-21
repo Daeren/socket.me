@@ -53,8 +53,8 @@ mio.onDisconnect((socket) => {
     console.log('onDisconnect', socket);
 });
 
-mio.onError((message) => {
-    console.log('onError', message);
+mio.onError((error) => {
+    console.log('onError', error);
 });
 
 //--------------------------------------------------

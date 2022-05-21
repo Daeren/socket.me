@@ -24,7 +24,7 @@ function mio(host = 'localhost:3500', ssl = false) {
     const events = {
         connect() { /* NOP */ },
         close(_wasClean, _code, _reason) { /* NOP */ },
-        error(_message, _error) { /* NOP */ },
+        error(error) { throw error; },
         data(_data) { /* NOP */ }
     };
 
@@ -41,7 +41,13 @@ function mio(host = 'localhost:3500', ssl = false) {
 
     socket.onopen = function() { events.connect(); };
     socket.onclose = function(event) { events.close(event.wasClean, event.code, event.reason); };
-    socket.onerror = function(event) { events.error(event.message, event); };
+
+    socket.onerror = function(event) {
+        const e = new Error(event.message);
+
+        e.event = event;
+        events.error(e);
+    };
 
     socket.onmessage = function({ data }) {
         events.data(data);
@@ -57,8 +63,7 @@ function mio(host = 'localhost:3500', ssl = false) {
         }
 
         if(d instanceof Error) {
-            events.error(d.message, d);
-            return;
+            throw d;
         }
 
         //---]>
@@ -67,11 +72,16 @@ function mio(host = 'localhost:3500', ssl = false) {
 
         //---]>
 
-        if(typeof ack === 'number') {
-            silentCallByKey(callbacksAck, ack, payload);
+        try {
+            if(typeof ack === 'number') {
+                silentCallByKey(callbacksAck, ack, payload);
+            }
+            else {
+                silentCallByKey(actions, type, payload);
+            }
         }
-        else {
-            silentCallByKey(actions, type, payload);
+        catch(e) {
+            events.error(e);
         }
     };
 
@@ -89,17 +99,6 @@ function mio(host = 'localhost:3500', ssl = false) {
 
         //---]>
 
-        send(data) {
-            try {
-                socket.send(data);
-            }
-            catch(e) {
-                events.error(e.message, e);
-                return false;
-            }
-
-            return true;
-        },
         close(code = 1000, reason = '') {
             socket.close(code, reason);
         },
@@ -174,7 +173,7 @@ function mio(host = 'localhost:3500', ssl = false) {
 
             //---]>
 
-            this.send(d);
+            socket.send(d);
 
             //---]>
 

@@ -81,8 +81,8 @@
         }
     });
 
-    s.onError((message) => {
-        console.log(`[error] ${message}`);
+    s.onError((error) => {
+        console.log(`[error] ${error.message}`);
     });
     </script>
 </html>

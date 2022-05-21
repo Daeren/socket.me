@@ -41,7 +41,12 @@ function SMApp({ app, events }) {
                 return smSocket.__send(type, ack, result);
             }, 'Socket.on | double call `response`: ' + type);
 
-            action(data, response);
+            try {
+                action(data, response);
+            }
+            catch(e) {
+                events.error(e);
+            }
         }
     });
 
@@ -119,8 +124,8 @@ function SMApp({ app, events }) {
             });
         },
         onError(callback) {
-            setCallbackByKey(events, 'error', (e, _ws) => {
-                callback(e.message, e, smSocket);
+            setCallbackByKey(events, 'error', (e) => {
+                callback(e, smSocket);
             });
         }
     };

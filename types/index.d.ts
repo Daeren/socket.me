@@ -29,7 +29,7 @@ export interface SMSocket {
 export type SMAppEventConnection = (socket: SMSocket) => void;
 export type SMAppEventDisconnection = (socket: SMSocket) => void;
 export type SMAppEventDrain = (socket: SMSocket, bufferedAmount: number) => void;
-export type SMAppEventError = (message: string, e: Error, socket: SMSocket) => void;
+export type SMAppEventError = (error: Error, socket: SMSocket) => void;
 
 export interface SMApp {
     get bufferedAmount(): number;

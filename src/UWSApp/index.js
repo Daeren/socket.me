@@ -18,7 +18,7 @@ function UWSApp(options) {
         connection(_ws) { /* NOP */ },
         disconnect(_ws) { /* NOP */ },
         drain(_ws, _bufferedAmount) { /* NOP */ },
-        error(_error, _ws) { /* NOP */ },
+        error(error) { throw error; },
 
         data(_ws, _data) { /* NOP */ }
     };
