@@ -41,7 +41,11 @@ function bindWsReq(app, options, events) {
         //---]>
 
         open(ws) { events.connection(ws); },
-        close(ws) { events.disconnect(ws); },
+        close(ws) {
+            ws.isClosed = true;
+            events.disconnect(ws);
+        },
+
         drain(ws) { events.drain(ws, ws.getBufferedAmount()); },
 
         message(ws, data, isBinary) {

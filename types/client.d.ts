@@ -1,5 +1,6 @@
 export type CSocketSrvData = ArrayBuffer | any;
 export type CSocketSendData = ArrayBuffer | Uint8Array | any;
+export type CSocketSendResult = boolean;
 
 //--------------------------------------------------
 
@@ -30,7 +31,7 @@ export interface CSocket {
     on(type: string, callback: CSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data?: CSocketSendData, response?: CSocketEventResponse, timeout?: number): ArrayBuffer;
+    emit(type: string, data?: CSocketSendData, response?: CSocketEventResponse, timeout?: number): CSocketSendResult;
 
     //---]>
 

@@ -34,7 +34,7 @@ function SMApp({ app, events }) {
 
         const [type, ack, data] = d;
 
-        const smSocket = ws.__refWS;
+        const smSocket = getSMSocket(ws);
         const action = smSocket.__actions[type];
 
         if(action) {
@@ -92,35 +92,37 @@ function SMApp({ app, events }) {
             const isBinary = true;
             const d = pack(type, null, data);
 
-            if(d instanceof Error) {
-                throw d;
-            }
-
             app.publish(topic, d, isBinary);
-
-            return d;
         },
 
         //---]>
 
         onConnection(callback) {
             setCallbackByKey(events, 'connection', (ws) => {
-                const s = ws.__refWS = SMSocket(ws);
-                callback(s);
+                callback(bindSMSocket(ws));
             });
         },
         onDisconnect(callback) {
             setCallbackByKey(events, 'disconnect', (ws) => {
-                callback(ws.__refWS);
-                delete ws.__refWS;
+                callback(unbindSMSocket(bindSMSocket(ws)));
             });
         },
         onDrain(callback) {
             setCallbackByKey(events, 'drain', (ws, bufferedAmount) => {
-                callback(ws.__refWS, bufferedAmount);
+                callback(bindSMSocket(ws), bufferedAmount);
             });
         }
     };
+}
+
+//--------------------------------------------------
+
+function getSMSocket(ws) { return ws.__refWS; }
+function bindSMSocket(ws) { return ws.__refWS || (ws.__refWS = SMSocket(ws)); }
+function unbindSMSocket(ws) {
+    const s = ws.__refWS;
+    delete ws.__refWS;
+    return s;
 }
 
 //--------------------------------------------------

@@ -1,12 +1,14 @@
 export type SMSocketClData = ArrayBuffer | any;
 export type SMSocketSendData = ArrayBuffer | Uint8Array | any;
+export type SMSocketSendResult = boolean;
 
 //--------------------------------------------------
 
-export type SMSocketEvent = (data: SMSocketClData, response: (data?: SMSocketSendData) => number) => void;
+export type SMSocketEvent = (data: SMSocketClData, response: (data?: SMSocketSendData) => SMSocketSendResult) => void;
 
 export interface SMSocket {
     get remoteAddress(): string;
+    get connected(): boolean;
 
     //---]>
 
@@ -18,14 +20,14 @@ export interface SMSocket {
     subscribe(topic: string): void;
     unsubscribe(topic: string): void;
 
-    publish(topic: string, type: string, data?: SMSocketSendData): ArrayBuffer;
+    publish(topic: string, type: string, data?: SMSocketSendData): SMSocketSendResult;
 
     //---]>
 
     on(type: string, callback: SMSocketEvent): void;
     off(type?: string): void;
 
-    emit(type: string, data?: SMSocketSendData): ArrayBuffer;
+    emit(type: string, data?: SMSocketSendData): SMSocketSendResult;
 }
 
 //--------------------------------------------------
@@ -45,7 +47,7 @@ export interface SMApp {
 
     //---]>
 
-    publish(topic: string, type: string, data?: SMSocketSendData): ArrayBuffer;
+    publish(topic: string, type: string, data?: SMSocketSendData): void;
 
     //---]>
 

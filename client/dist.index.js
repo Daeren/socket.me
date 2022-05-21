@@ -389,6 +389,12 @@ function mio(host = 'localhost:3500', ssl = false) {
 
             //---]>
 
+            if(socket.readyState !== 1) {
+                return false;
+            }
+
+            //---]>
+
             let ack = null;
 
             if(callback) {
@@ -439,7 +445,7 @@ function mio(host = 'localhost:3500', ssl = false) {
 
             //---]>
 
-            return d;
+            return true;
         },
 
         //---]>

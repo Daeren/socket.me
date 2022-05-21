@@ -13,12 +13,18 @@ const { pack } = require('./../shared/messagePacker');
 
 function SMSocket(socket) {
     const send = (type, ack, data) => {
+        if(socket.isClosed) {
+            return false;
+        }
+
+        //---]>
+
         const isBinary = true;
         const d = pack(ack === null ? type : '', ack, data);
 
         socket.send(d, isBinary);
 
-        return d;
+        return true;
     };
 
     let actions = Object.create(null);
@@ -32,10 +38,15 @@ function SMSocket(socket) {
         //---]>
 
         get remoteAddress() { return Buffer.from(socket.getRemoteAddressAsText()).toString(); },
+        get connected() { return !socket.isClosed; },
 
         //---]>
 
-        terminate() { socket.close(); },
+        terminate() {
+            if(!socket.isClosed) {
+                socket.close();
+            }
+        },
         disconnect(code, reason) { socket.end(code, reason); },
 
         //---]>
@@ -46,7 +57,12 @@ function SMSocket(socket) {
         },
         unsubscribe(topic) {
             assertChangeTopic(topic);
-            socket.unsubscribe(topic);
+
+            //---]>
+
+            if(!socket.isClosed) {
+                socket.unsubscribe(topic);
+            }
         },
 
         publish(topic, type, data) {
@@ -54,16 +70,18 @@ function SMSocket(socket) {
 
             //---]>
 
+            if(socket.isClosed) {
+                return false;
+            }
+
+            //---]>
+
             const isBinary = true;
             const d = pack(type, null, data);
 
-            if(d instanceof Error) {
-                throw d;
-            }
-
             socket.publish(topic, d, isBinary);
 
-            return d;
+            return true;
         },
 
         //---]>
