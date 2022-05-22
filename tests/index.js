@@ -26,36 +26,36 @@ test('1. pack > unpack', () => {
 });
 
 test('2. pack > unpack', () => {
-    const a = unpack(pack('test', null, [1, 2, 3, 'bin тест ё 120']));
-    const e = ['test', undefined, [1, 2, 3, 'bin тест ё 120']];
+    const a = unpack(pack('2.test', null, [1, 2, 3, 'bin тест ё 120']));
+    const e = ['2.test', undefined, [1, 2, 3, 'bin тест ё 120']];
 
     assert.deepStrictEqual(a, e);
 });
 
 test('3. pack > unpack', () => {
-    const a = unpack(pack('test', 0, [1, 2, 3, 'bin тест ё 120']));
-    const e = ['test', 0, [1, 2, 3, 'bin тест ё 120']];
+    const a = unpack(pack('test.3', 0, [1, 2, 3, 'bin тест ё 120']));
+    const e = ['test.3', 0, [1, 2, 3, 'bin тест ё 120']];
 
     assert.deepStrictEqual(a, e);
 });
 
 test('4. pack > unpack', () => {
-    const a = unpack(pack('test', 0));
-    const e = ['test', 0, undefined];
+    const a = unpack(pack('4.test', 0));
+    const e = ['4.test', 0, undefined];
 
     assert.deepStrictEqual(a, e);
 });
 
 test('5. pack > unpack', () => {
-    const a = unpack(pack('test', 10));
-    const e = ['test', 10, undefined];
+    const a = unpack(pack('te5st', 10));
+    const e = ['te5st', 10, undefined];
 
     assert.deepStrictEqual(a, e);
 });
 
 test('6. pack > unpack', () => {
-    const a = unpack(pack('test', 0, str2ab('bin тест ё 120')));
-    const e = ['test', 0, str2ab('bin тест ё 120')];
+    const a = unpack(pack('test.ё', 0, str2ab('bin тест ё 120')));
+    const e = ['test.ё', 0, str2ab('bin тест ё 120')];
 
     assert.deepStrictEqual(a, e);
 });

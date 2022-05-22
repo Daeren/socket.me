@@ -282,18 +282,22 @@ module.exports = {
 
 //--------------------------------------------------
 
-const enc = new TextEncoder();
-const dec = new TextDecoder();
-
-//---]>
-
-function encodeString(v) {
-    return enc.encode(v);
+function encodeString(str) {
+    return (new TextEncoder()).encode(str);
 }
 
-function decodeString(bytes, offset, size) {
-    const len = size - offset;
-    return len < 256 ? utf8Decode(bytes, offset, len) : dec.decode(bytes.slice(offset, size).buffer);
+function decodeString(bytes, start, end) {
+    const len = end - start;
+
+    if(len < 256) {
+        return utf8Decode(bytes, start, len);
+    }
+
+    if(typeof Buffer !== 'undefined') {
+        return Buffer.from(bytes).toString('utf8', start, end);
+    }
+
+    return (new TextDecoder()).decode(bytes.slice(start, end).buffer);
 }
 
 //--------------------------------------------------
