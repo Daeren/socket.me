@@ -75,12 +75,10 @@ test('8. unpack', () => {
 });
 
 test('9. unpack', () => {
-    const [type, ack] = unpack(new ArrayBuffer(20));
+    const a = unpack(new ArrayBuffer(20));
+    const e = null;
 
-    const a = [type, ack];
-    const e = ['', undefined];
-
-    assert.deepStrictEqual(a, e);
+    assert.strictEqual(a, e);
 });
 
 test('10. unpack', () => {

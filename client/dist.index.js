@@ -139,9 +139,6 @@ const C_MODE_EMPTY = 8;
 
 //--------------------------------------------------
 
-const enc = new TextEncoder();
-const dec = new TextDecoder();
-
 const unpackCache = [undefined, undefined, undefined];
 
 //--------------------------------------------------
@@ -160,8 +157,8 @@ function pack(type, ack, data) {
 
     //---]>
 
-    const typeBuf = enc.encode(type);
-    const dataBuf = isAB ? (isUB ? data : new Uint8Array(data)) : (isEmpty ? null : enc.encode(JSON.stringify(data)));
+    const typeBuf = encodeString(type);
+    const dataBuf = isAB ? (isUB ? data : new Uint8Array(data)) : (isEmpty ? null : encodeString(JSON.stringify(data)));
 
     //---]>
 
@@ -175,6 +172,13 @@ function pack(type, ack, data) {
     //---]>
 
     let offset = 0;
+
+    //---]>
+
+    // protocol: u8 - 256
+    if(typeLen >= 256) {
+        throw new Error('`type` is too long');
+    }
 
     //---]>
 
@@ -236,20 +240,21 @@ function unpack(buffer) {
         typeLen = bufView[offset];
         offset += 1;
 
-        type = dec.decode(bufView.slice(offset, offset + typeLen));
+        type = decodeString(bufView, offset, offset + typeLen);
         offset += typeLen;
 
         ack = (mode & C_MODE_ACK) === C_MODE_ACK ? bufView[offset] : undefined;
         offset += 1;
 
         if((mode & C_MODE_EMPTY) !== C_MODE_EMPTY) {
-            data = bufView.slice(offset, buffer.byteLength);
-
             if((mode & C_MODE_BIN) === C_MODE_BIN) {
-                data = data.buffer;
+                data = bufView.slice(offset, buffer.byteLength).buffer;
             }
             else if((mode & C_MODE_JSON) === C_MODE_JSON) {
-                data = JSON.parse(dec.decode(data));
+                data = JSON.parse(decodeString(bufView, offset, buffer.byteLength));
+            }
+            else {
+                return null;
             }
         }
     }
@@ -268,12 +273,81 @@ function unpack(buffer) {
     return unpackCache;
 }
 
+
 //--------------------------------------------------
 
 module.exports = {
     pack,
     unpack
 };
+
+//--------------------------------------------------
+
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+//---]>
+
+function encodeString(v) {
+    return enc.encode(v);
+}
+
+function decodeString(bytes, offset, size) {
+    const len = size - offset;
+    return len < 256 ? utf8Decode(bytes, offset, len) : dec.decode(bytes.slice(offset, size).buffer);
+}
+
+//--------------------------------------------------
+
+// Faster for short strings (API requires calls across JS <-> Native bridge)
+function utf8Decode(bytes, inputOffset, byteLength) {
+    let offset = inputOffset;
+
+    const end = offset + byteLength;
+    const out = [];
+
+    while(offset < end) {
+        const byte1 = bytes[offset++];
+
+        if((byte1 & 0x80) === 0) {
+            // 1 byte
+            out.push(byte1);
+        }
+        else if((byte1 & 0xe0) === 0xc0) {
+            // 2 bytes
+            const byte2 = bytes[offset++] & 0x3f;
+            out.push(((byte1 & 0x1f) << 6) | byte2);
+        }
+        else if((byte1 & 0xf0) === 0xe0) {
+            // 3 bytes
+            const byte2 = bytes[offset++] & 0x3f;
+            const byte3 = bytes[offset++] & 0x3f;
+
+            out.push(((byte1 & 0x1f) << 12) | (byte2 << 6) | byte3);
+        }
+        else if((byte1 & 0xf8) === 0xf0) {
+            // 4 bytes
+            const byte2 = bytes[offset++] & 0x3f;
+            const byte3 = bytes[offset++] & 0x3f;
+            const byte4 = bytes[offset++] & 0x3f;
+
+            let unit = ((byte1 & 0x07) << 0x12) | (byte2 << 0x0c) | (byte3 << 0x06) | byte4;
+
+            if(unit > 0xffff) {
+                unit -= 0x10000;
+                out.push(((unit >>> 10) & 0x3ff) | 0xd800);
+                unit = 0xdc00 | (unit & 0x3ff);
+            }
+
+            out.push(unit);
+        }
+        else {
+            out.push(byte1);
+        }
+    }
+
+    return String.fromCharCode.apply(String, out);
+}
  })(global.messagePacker);global.mio = {};((module) => { ﻿const {
     silentCallByKey
 } = global.tools.exports;
@@ -408,8 +482,7 @@ function mio(host = 'localhost:3500', ssl = false) {
                 // looking for a free slot
 
                 for(let i = 1; i < 256; ++i) {
-                    ++lastAck;
-                    lastAck %= 256; // protocol: u8 - 256
+                    lastAck = (lastAck + 1) % 256; // protocol: u8 - 256
 
                     if(!callbacksAck[lastAck]) {
                         ack = lastAck;
