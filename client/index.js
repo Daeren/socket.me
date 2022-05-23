@@ -138,6 +138,9 @@ const C_MODE_EMPTY = 8;
 
 //--------------------------------------------------
 
+const packBufferCacheSize = 1024 * 128;
+const packBufferCache = new ArrayBuffer(packBufferCacheSize);
+
 const unpackCache = [undefined, undefined, undefined];
 
 //--------------------------------------------------
@@ -147,7 +150,7 @@ const unpackCache = [undefined, undefined, undefined];
  * @param {string} type
  * @param {(null|number)} ack
  * @param {(ArrayBuffer|Uint8Array|object)} data
- * @returns {ArrayBuffer}
+ * @returns {Uint8Array}
  */
 function pack(type, ack, data) {
     const isUB = data instanceof Uint8Array;
@@ -165,8 +168,9 @@ function pack(type, ack, data) {
     const typeLen = typeBuf.byteLength;
 
     const bufSize = (1) + (1 + typeLen) + (1) + (dataSize);
-    const buffer = new ArrayBuffer(bufSize);
-    const bufView = new Uint8Array(buffer)
+    const bufView = bufSize > packBufferCacheSize
+        ? new Uint8Array(bufSize)
+        : new Uint8Array(packBufferCache, 0, bufSize);
 
     //---]>
 
@@ -204,16 +208,21 @@ function pack(type, ack, data) {
 
     //---]>
 
-    return buffer;
+    return bufView;
 }
 
 /**
  *
- * @param {ArrayBuffer} buffer
+ * @param {(ArrayBuffer|Uint8Array)} buffer
  * @returns {(null|Error|Array)}
  */
 function unpack(buffer) {
-    if(buffer instanceof ArrayBuffer === false || !buffer.byteLength) {
+    const isAB = buffer instanceof ArrayBuffer;
+    const isUB = buffer instanceof Uint8Array;
+
+    //---]>
+
+    if((isAB || isUB) === false  || !buffer.byteLength) {
         return null;
     }
 
@@ -228,7 +237,7 @@ function unpack(buffer) {
 
     //---]>
 
-    const bufView = new Uint8Array(buffer)
+    const bufView = isAB ? new Uint8Array(buffer) : buffer;
 
     //---]>
 
