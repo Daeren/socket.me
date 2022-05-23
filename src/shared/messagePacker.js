@@ -20,19 +20,23 @@ const unpackCache = [undefined, undefined, undefined];
  * @returns {Uint8Array}
  */
 function pack(type, ack, data) {
+    const isAB = data instanceof ArrayBuffer;
     const isUB = data instanceof Uint8Array;
-    const isAB = isUB || data instanceof ArrayBuffer;
+
+    const isBin = isAB || isUB;
     const isEmpty = typeof data === 'undefined';
 
     //---]>
 
     const typeBuf = encodeString(type);
-    const dataBuf = isAB ? (isUB ? data : new Uint8Array(data)) : (isEmpty ? null : encodeString(JSON.stringify(data)));
+    const dataBuf = isBin
+        ? (isUB ? data : new Uint8Array(data))
+        : (isEmpty ? null : encodeString(JSON.stringify(data)));
 
     //---]>
 
-    const dataSize = isEmpty ? 0 : dataBuf.byteLength;
     const typeLen = typeBuf.byteLength;
+    const dataSize = isEmpty ? 0 : dataBuf.byteLength;
 
     const bufSize = (1) + (1 + typeLen) + (1) + (dataSize);
     const bufView = bufSize > packBufferCacheSize
@@ -53,7 +57,7 @@ function pack(type, ack, data) {
     //---]>
 
     // mode
-    bufView[offset] = (isAB ? C_MODE_BIN : C_MODE_JSON) | (typeof ack === 'number' ? C_MODE_ACK : 0) | (isEmpty ? C_MODE_EMPTY : 0);
+    bufView[offset] = (isBin ? C_MODE_BIN : C_MODE_JSON) | (typeof ack === 'number' ? C_MODE_ACK : 0) | (isEmpty ? C_MODE_EMPTY : 0);
     offset += 1;
 
     // type length
@@ -147,7 +151,6 @@ function unpack(buffer) {
 
     return unpackCache;
 }
-
 
 //--------------------------------------------------
 
