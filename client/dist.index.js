@@ -300,10 +300,46 @@ const dec = new TextEncoder();
 
 //---]>
 
+const encStrBufferAlloc = 256;
+const encStrBufferSize = (encStrBufferAlloc * 2) * 2;  // utf16 (utf8 + utf8 = x2) + pack (type + data = x2)
+const encStrBufferCache = new ArrayBuffer(encStrBufferSize);
+
+let encStrBufferOffset = 0;
+
+//---]>
+
+/**
+ *
+ * @param {string} str
+ * @returns {ArrayBufferLike}
+ */
 function encodeString(str) {
+    const len = str.length;
+
+    if(len <= encStrBufferAlloc) {
+        const byteLength = utf8ByteLength(str, len);
+        const bufView = new Uint8Array(encStrBufferCache, encStrBufferOffset, byteLength);
+
+        encStrBufferOffset = (encStrBufferOffset + encStrBufferAlloc) % encStrBufferSize;
+
+        utf8Encode(bufView, 0, str, len);
+
+        return bufView;
+    }
+    else if(len <= 500 && typeof Buffer !== 'undefined') {
+        return Buffer.from(str);
+    }
+
     return enc.encode(str);
 }
 
+/**
+ *
+ * @param {ArrayBufferLike} bytes
+ * @param {number} start
+ * @param {number} end
+ * @returns {string}
+ */
 function decodeString(bytes, start, end) {
     const len = end - start;
 
@@ -311,7 +347,7 @@ function decodeString(bytes, start, end) {
         return Buffer.from(bytes).toString('utf8', start, end);
     }
 
-    if(len <= 220) {
+    if(len <= 200) {
         return utf8Decode(bytes, start, len);
     }
 
@@ -319,8 +355,64 @@ function decodeString(bytes, start, end) {
 }
 
 //--------------------------------------------------
-
 // Faster for short strings (API requires calls across JS <-> Native bridge)
+
+function utf8ByteLength(str, length) {
+    let c = 0;
+    let byteLength = 0;
+
+    for(let i = 0; i < length; ++i) {
+        c = str.charCodeAt(i);
+
+        if(c < 0x80) {
+            byteLength += 1;
+        }
+        else if(c < 0x800) {
+            byteLength += 2;
+        }
+        else if(c < 0xd800 || c >= 0xe000) {
+            byteLength += 3;
+        }
+        else {
+            ++i;
+            byteLength += 4;
+        }
+    }
+
+    return byteLength;
+}
+
+function utf8Encode(arr, offset, str, length) {
+    let c = 0;
+
+    for(let i = 0; i < length; ++i) {
+        c = str.charCodeAt(i);
+
+        if(c < 0x80) {
+            arr[offset++] = c;
+        }
+        else if(c < 0x800) {
+            arr[offset++] = 0xc0 | (c >> 6);
+            arr[offset++] = 0x80 | (c & 0x3f);
+        }
+        else if(c < 0xd800 || c >= 0xe000) {
+            arr[offset++] = 0xe0 | (c >> 12);
+            arr[offset++] = 0x80 | (c >> 6) & 0x3f;
+            arr[offset++] = 0x80 | (c & 0x3f);
+        }
+        else {
+            ++i;
+
+            c = 0x10000 + (((c & 0x3ff) << 10) | (str.charCodeAt(i) & 0x3ff));
+
+            arr[offset++] = 0xf0 | (c >> 18);
+            arr[offset++] = 0x80 | (c >> 12) & 0x3f;
+            arr[offset++] = 0x80 | (c >> 6) & 0x3f;
+            arr[offset++] = 0x80 | (c & 0x3f);
+        }
+    }
+}
+
 function utf8Decode(bytes, inputOffset, byteLength) {
     let offset = inputOffset;
 
