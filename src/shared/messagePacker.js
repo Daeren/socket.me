@@ -162,7 +162,7 @@ module.exports = {
 //--------------------------------------------------
 
 const enc = new TextEncoder();
-const dec = new TextEncoder();
+const dec = new TextDecoder();
 
 //---]>
 
