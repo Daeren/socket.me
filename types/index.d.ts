@@ -1,6 +1,7 @@
 export type SMSocketClData = ArrayBuffer | any;
 export type SMSocketSendData = ArrayBuffer | Uint8Array | any;
-export type SMSocketSendResult = boolean;
+// -1 for closed, 1 for success, 2 for dropped due to backpressure limit, and 0 for built-up backpressure that will drain over time
+export type SMSocketSendResult = number;
 
 //--------------------------------------------------
 
@@ -20,7 +21,7 @@ export interface SMSocket {
     subscribe(topic: string): void;
     unsubscribe(topic: string): void;
 
-    publish(topic: string, type: string, data?: SMSocketSendData): SMSocketSendResult;
+    publish(topic: string, type: string, data?: SMSocketSendData): boolean;
 
     //---]>
 
@@ -47,7 +48,7 @@ export interface SMApp {
 
     //---]>
 
-    publish(topic: string, type: string, data?: SMSocketSendData): void;
+    publish(topic: string, type: string, data?: SMSocketSendData): boolean;
 
     //---]>
 
@@ -76,6 +77,7 @@ export type CompressOptions = number;
 //---]>
 
 export type SMAppOptions = {
+    // '' - off, <script src="http://localhost:3500/[socket.me]"></script>
     clientLibPath?: 'socket.me';
 
     ssl?: boolean,

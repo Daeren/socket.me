@@ -92,7 +92,7 @@ function SMApp({ app, events }) {
             const isBinary = true;
             const d = pack(type, null, data);
 
-            app.publish(topic, d, isBinary);
+            return app.publish(topic, d, isBinary);
         },
 
         //---]>

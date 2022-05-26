@@ -14,7 +14,7 @@ const { pack } = require('./../shared/messagePacker');
 function SMSocket(socket) {
     const send = (type, ack, data) => {
         if(socket.isClosed) {
-            return false;
+            return -1;
         }
 
         //---]>
@@ -22,9 +22,7 @@ function SMSocket(socket) {
         const isBinary = true;
         const d = pack(ack === null ? type : '', ack, data);
 
-        socket.send(d, isBinary);
-
-        return true;
+        return socket.send(d, isBinary)
     };
 
     let actions = Object.create(null);
@@ -79,9 +77,7 @@ function SMSocket(socket) {
             const isBinary = true;
             const d = pack(type, null, data);
 
-            socket.publish(topic, d, isBinary);
-
-            return true;
+            return socket.publish(topic, d, isBinary);
         },
 
         //---]>

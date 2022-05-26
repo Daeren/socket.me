@@ -13,8 +13,7 @@ Server:
 ```javascript
 const mio = SocketMe({
     idleTimeout: 8,
-    maxBackpressure: 1024,
-    maxPayloadLength: 512
+    maxPayloadLength: 128
 });
 
 //---]>
@@ -56,7 +55,12 @@ Browser:
 
 Nuxt.js:
 ```javascript
-import mio from 'socket.me/client';
+import { Mio } from 'socket.me/types/client.d';
+import client from 'socket.me/client';
+
+//---]>
+
+const mio = client as Mio;
 ```
 
 
