@@ -35,9 +35,40 @@ function SMApp({ app, events }) {
         const [type, ack, data] = d;
 
         const smSocket = getSMSocket(ws);
+
         const action = smSocket.__actions[type];
+        const schema = smSocket.__schemas[type];
 
         if(action) {
+            //---]>
+            // validate
+
+            if(schema) {
+                if(typeof schema === 'string') {
+                    if(typeof data !== schema) {
+                        return;
+                    }
+                }
+                else if(Array.isArray(schema)) {
+                    if(!Array.isArray(data) || data.length !== schema.length || !data.every((e, i) => typeof e === schema[i])) {
+                        return;
+                    }
+                }
+                else {
+                    if(!data) {
+                        return;
+                    }
+
+                    for(let k in schema) {
+                        if(typeof data[k] !== schema[k]) {
+                            return;
+                        }
+                    }
+                }
+            }
+
+            //---]>
+
             const response = onceCall((result) => {
                 return smSocket.__send(type, ack, result);
             }, 'Socket.on | double call `response`: ' + type);
@@ -118,6 +149,7 @@ function SMApp({ app, events }) {
 //--------------------------------------------------
 
 function getSMSocket(ws) { return ws.__refWS; }
+
 function bindSMSocket(ws) { return ws.__refWS || (ws.__refWS = SMSocket(ws)); }
 function unbindSMSocket(ws) {
     const s = ws.__refWS;

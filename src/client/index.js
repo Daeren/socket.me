@@ -100,6 +100,11 @@ function mio(host = 'localhost:3500', ssl = false) {
 
         on(type, callback) {
             assertBindEvent(type, callback);
+
+            if(actions[type]) {
+                throw new Error('This event already exists');
+            }
+
             actions[type] = callback;
         },
         off(type) {

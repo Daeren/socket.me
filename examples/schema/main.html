@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+    </head>
+
+    <body></body>
+
+    <script src="http://localhost:3500/socket.me"></script>
+    <script>
+    const ws = mio('localhost:3500');
+
+    //---]>
+
+    ws.onConnect(() => {
+        console.log("[open] Соединение установлено");
+
+        //---]>
+        // ok
+
+        ws.emit('object', { id: 1, name: 'test' });
+        ws.emit('array', [1, 'test']);
+        ws.emit('primitive', 1);
+
+
+        //---]>
+        // bad
+
+        ws.emit('object');
+        ws.emit('object', { name: 'test' });
+        ws.emit('object', { id: '1', name: 'test' });
+
+        ws.emit('array');
+        ws.emit('array', ['test']);
+        ws.emit('array', ['1', 'test']);
+
+        ws.emit('primitive');
+        ws.emit('primitive', '1');
+    });
+    </script>
+</html>

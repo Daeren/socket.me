@@ -60,7 +60,34 @@ import client from 'socket.me/client';
 
 //---]>
 
-const mio = client as Mio;
+const ws = client as Mio;
+```
+
+
+Typed (Server):
+```javascript
+mio.onConnection((socket) => {
+    socket
+        .typed({
+            id: 'number',
+            name: 'string'
+        })
+        .on('object', ({ id, name }) => {
+            console.log('object:', id, name);
+        });
+
+    socket
+        .typed(['number', 'string'])
+        .on('array', ([id, name]) => {
+            console.log('array:', id, name);
+        });
+
+    socket
+        .typed('number')
+        .on('primitive', (id) => {
+            console.log('primitive:', id);
+        });
+});
 ```
 
 

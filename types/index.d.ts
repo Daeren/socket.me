@@ -25,6 +25,10 @@ export interface SMSocket {
 
     //---]>
 
+    typed(schema: { [k: string]: string } | Array<string> | string): SMSocket;
+
+    //---]>
+
     on(type: string, callback: SMSocketEvent): void;
     off(type?: string): void;
 

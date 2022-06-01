@@ -1,4 +1,6 @@
 ﻿const {
+    assertBindSchema,
+
     assertBindEvent,
     assertRemoveEvent,
     assertCallEvent,
@@ -26,11 +28,13 @@ function SMSocket(socket) {
     };
 
     let actions = Object.create(null);
+    let schemas = Object.create(null); // key: value (object or array)
 
     //---]>
 
     return {
         get __actions() { return actions; },
+        get __schemas() { return schemas; },
         get __send() { return send; },
 
         //---]>
@@ -82,17 +86,44 @@ function SMSocket(socket) {
 
         //---]>
 
+        typed(schema) {
+            assertBindSchema(schema);
+
+            //---]>
+
+            const wrapper = Object.create(this);
+
+            wrapper.on = (type, callback) => {
+                this.on(type, callback);
+                schemas[type] = schema;
+            };
+
+            //---]>
+
+            return wrapper;
+        },
+
+        //---]>
+
         on(type, callback) {
             assertBindEvent(type, callback);
+
+            if(actions[type]) {
+                throw new Error('This event already exists: ' + type);
+            }
+
             actions[type] = callback;
         },
         off(type) {
             if(arguments.length) {
                 assertRemoveEvent(type);
+
                 delete actions[type];
+                delete schemas[type];
             }
             else {
                 actions = Object.create(null);
+                schemas = Object.create(null);
             }
         },
 

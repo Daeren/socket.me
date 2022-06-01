@@ -37,6 +37,18 @@ function setCallbackByKey(table, key, callback) {
 
 /**
  *
+ * @param {({ [k: string]: string }|Array<string>|string)} schema
+ */
+function assertBindSchema(schema) {
+    if(!schema || (typeof schema !== 'object' && typeof schema !== 'string' && !Array.isArray(schema))) {
+        throw new Error('assertBindSchema | invalid `schema`');
+    }
+}
+
+//---]>
+
+/**
+ *
  * @param {string} type
  * @param {Function} callback
  */
@@ -103,6 +115,8 @@ module.exports = {
     onceCall,
 
     setCallbackByKey,
+
+    assertBindSchema,
 
     assertBindEvent,
     assertRemoveEvent,
