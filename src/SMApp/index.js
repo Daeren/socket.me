@@ -173,6 +173,11 @@ function validate(type, value) {
             return false;
         }
     }
+    else if(type === 'object') {
+        if(Array.isArray(value) || !value) {
+            return false;
+        }
+    }
     else if(typeof value !== type) {
         return false;
     }
