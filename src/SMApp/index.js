@@ -39,50 +39,52 @@ function SMApp({ app, events }) {
         const action = smSocket.__actions[type];
         const schema = smSocket.__schemas[type];
 
-        if(action) {
-            //---]>
-            // validate
+        if(!action) {
+            return;
+        }
 
-            if(schema) {
-                if(typeof schema === 'string') {
-                    if(!validate(schema, data)) {
-                        return;
-                    }
-                }
-                else if(Array.isArray(schema)) {
-                    if(!Array.isArray(data) || data.length !== schema.length || !data.every((e, i) => validate(schema[i], e))) {
-                        return;
-                    }
-                }
-                else {
-                    if(!data) {
-                        return;
-                    }
+        //---]>
+        // validate
 
-                    let schemaKeysCount = 0;
-
-                    for(let k in schema) {
-                        if(!validate(schema[k], data[k])) {
-                            return;
-                        }
-
-                        schemaKeysCount++;
-                    }
-
-                    if(Object.keys(data).length !== schemaKeysCount) {
-                        return;
-                    }
+        if(schema) {
+            if(typeof schema === 'string') {
+                if(!validate(schema, data)) {
+                    return;
                 }
             }
+            else if(Array.isArray(schema)) {
+                if(!Array.isArray(data) || data.length !== schema.length || !data.every((e, i) => validate(schema[i], e))) {
+                    return;
+                }
+            }
+            else {
+                if(!data) {
+                    return;
+                }
 
-            //---]>
+                let schemaKeysCount = 0;
 
-            const response = onceCall((result) => {
-                return smSocket.__send(type, ack, result);
-            }, 'Socket.on | double call `response`: ' + type);
+                for(let k in schema) {
+                    if(!validate(schema[k], data[k])) {
+                        return;
+                    }
 
-            action(data, response);
+                    schemaKeysCount++;
+                }
+
+                if(Object.keys(data).length !== schemaKeysCount) {
+                    return;
+                }
+            }
         }
+
+        //---]>
+
+        const response = onceCall((result) => {
+            return smSocket.__send(type, ack, result);
+        }, 'Socket.on | double call `response`: ' + type);
+
+        action(data, response);
     });
 
     //---]>
