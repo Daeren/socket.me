@@ -70,16 +70,17 @@ mio.onConnection((socket) => {
     socket
         .typed({
             id: 'number',
-            name: 'string'
+            name: 'string',
+            tags: 'array'
         })
-        .on('object', ({ id, name }) => {
-            console.log('object:', id, name);
+        .on('object', ({ id, name, tags }) => {
+            console.log('object:', id, name, tags);
         });
 
     socket
-        .typed(['number', 'string'])
-        .on('array', ([id, name]) => {
-            console.log('array:', id, name);
+        .typed(['number', 'string', 'array'])
+        .on('array', ([id, name, tags]) => {
+            console.log('array:', id, name, tags);
         });
 
     socket

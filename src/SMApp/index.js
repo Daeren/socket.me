@@ -62,7 +62,15 @@ function SMApp({ app, events }) {
                     let schemaKeysCount = 0;
 
                     for(let k in schema) {
-                        if(typeof data[k] !== schema[k]) {
+                        const type = schema[k];
+                        const value = data[k];
+
+                        if(type === 'array') {
+                            if(!Array.isArray(value)) {
+                                return;
+                            }
+                        }
+                        else if(typeof value !== type) {
                             return;
                         }
 

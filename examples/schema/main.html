@@ -19,7 +19,7 @@
         //---]>
         // ok
 
-        ws.emit('object', { id: 1, name: 'test' });
+        ws.emit('object', { id: 1, name: 'test', tags: [1,2] });
         ws.emit('array', [1, 'test']);
         ws.emit('primitive', 1);
 
