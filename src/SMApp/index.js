@@ -170,7 +170,10 @@ function unbindSMSocket(ws) {
 //---]>
 
 function validate(type, value) {
-    if(type === 'object') {
+    if(type instanceof Function) {
+        return type(value);
+    }
+    else if(type === 'object') {
         if(Array.isArray(value) || !value) {
             return false;
         }
@@ -179,9 +182,6 @@ function validate(type, value) {
         if(!Array.isArray(value)) {
             return false;
         }
-    }
-    else if(type instanceof Function) {
-        return type(value);
     }
     else if(type === 'any') {
         return true;

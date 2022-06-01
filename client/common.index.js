@@ -60,7 +60,16 @@ function setCallbackByKey(table, key, callback) {
  * @param {({ [k: string]: string }|Array<string>|string)} schema
  */
 function assertBindSchema(schema) {
-    if(!schema || (typeof schema !== 'object' && typeof schema !== 'string' && !Array.isArray(schema))) {
+    if(
+        !schema ||
+        (
+            typeof schema !== 'object' &&
+            typeof schema !== 'string' &&
+            typeof schema !== 'function' &&
+
+            !Array.isArray(schema)
+        )
+    ) {
         throw new Error('assertBindSchema | invalid `schema`');
     }
 }
