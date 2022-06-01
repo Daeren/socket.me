@@ -47,7 +47,7 @@ function SMApp({ app, events }) {
         // validate
 
         if(schema) {
-            if(typeof schema === 'string' || typeof schema === 'function') {
+            if(typeof schema === 'function' || typeof schema === 'string') {
                 if(!validate(schema, data)) {
                     return;
                 }
