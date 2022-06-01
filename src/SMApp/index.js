@@ -59,10 +59,18 @@ function SMApp({ app, events }) {
                         return;
                     }
 
+                    let schemaKeysCount = 0;
+
                     for(let k in schema) {
                         if(typeof data[k] !== schema[k]) {
                             return;
                         }
+
+                        schemaKeysCount++;
+                    }
+
+                    if(Object.keys(data).length !== schemaKeysCount) {
+                        return;
                     }
                 }
             }
