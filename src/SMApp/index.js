@@ -168,7 +168,10 @@ function unbindSMSocket(ws) {
 //---]>
 
 function validate(type, value) {
-    if(type === 'array') {
+    if(type === 'any') {
+        return true;
+    }
+    else if(type === 'array') {
         if(!Array.isArray(value)) {
             return false;
         }

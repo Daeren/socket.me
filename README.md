@@ -66,7 +66,7 @@ const ws = client as Mio;
 
 Typed (Server):
 ```javascript
-// number, string, boolean, array, object (only { ... })
+// any, number, string, boolean, array, object (only { ... })
 
 mio.onConnection((socket) => {
     socket
