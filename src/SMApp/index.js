@@ -47,7 +47,7 @@ function SMApp({ app, events }) {
         // validate
 
         if(schema) {
-            if(typeof schema === 'string') {
+            if(typeof schema === 'string' || typeof schema === 'function') {
                 if(!validate(schema, data)) {
                     return;
                 }
@@ -170,18 +170,21 @@ function unbindSMSocket(ws) {
 //---]>
 
 function validate(type, value) {
-    if(type === 'any') {
-        return true;
+    if(type === 'object') {
+        if(Array.isArray(value) || !value) {
+            return false;
+        }
     }
     else if(type === 'array') {
         if(!Array.isArray(value)) {
             return false;
         }
     }
-    else if(type === 'object') {
-        if(Array.isArray(value) || !value) {
-            return false;
-        }
+    else if(type instanceof Function) {
+        return type(value);
+    }
+    else if(type === 'any') {
+        return true;
     }
     else if(typeof value !== type) {
         return false;

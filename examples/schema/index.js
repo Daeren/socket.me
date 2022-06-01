@@ -14,9 +14,13 @@ mio.onConnection((socket) => {
 
     //---]>
 
+    const tpId = (v) => typeof v === 'number';
+
+    //---]>
+
     socket
         .typed({
-            id: 'number',
+            id: tpId,
             name: 'string',
             tags: 'array'
         })
@@ -25,13 +29,13 @@ mio.onConnection((socket) => {
         });
 
     socket
-        .typed(['number', 'string'])
+        .typed([tpId, 'string'])
         .on('array', ([id, name]) => {
             console.log('array:', id, name);
         });
 
     socket
-        .typed('number')
+        .typed(tpId)
         .on('primitive', (id) => {
             console.log('primitive:', id);
         });

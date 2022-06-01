@@ -71,7 +71,7 @@ Typed (Server):
 mio.onConnection((socket) => {
     socket
         .typed({
-            id: 'number',
+            id: (v) => typeof v === 'number',
             name: 'string',
             tags: 'array'
         })

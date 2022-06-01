@@ -6,6 +6,7 @@ export type SMSocketSendResult = number;
 //--------------------------------------------------
 
 export type SMSocketEvent = (data: SMSocketClData, response: (data?: SMSocketSendData) => SMSocketSendResult) => void;
+export type SMSocketTypedValidator = (v: any) => boolean;
 
 export interface SMSocket {
     get remoteAddress(): string;
@@ -25,7 +26,7 @@ export interface SMSocket {
 
     //---]>
 
-    typed(schema: { [k: string]: string } | Array<string> | string): SMSocket;
+    typed(schema: { [k: string]: string | SMSocketTypedValidator } | Array<string | SMSocketTypedValidator> | string | SMSocketTypedValidator): SMSocket;
 
     //---]>
 
