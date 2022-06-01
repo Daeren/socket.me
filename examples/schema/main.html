@@ -29,7 +29,7 @@
 
         ws.emit('object');
         ws.emit('object', { name: 'test' });
-        ws.emit('object', { id: '1', name: 'test' });
+        ws.emit('object', { id: '1', name: 'test', tags: [] });
         ws.emit('object', { id: 1, name: 'test', x: 0 });
 
         ws.emit('array');

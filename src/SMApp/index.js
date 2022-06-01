@@ -45,12 +45,12 @@ function SMApp({ app, events }) {
 
             if(schema) {
                 if(typeof schema === 'string') {
-                    if(typeof data !== schema) {
+                    if(!validate(schema, data)) {
                         return;
                     }
                 }
                 else if(Array.isArray(schema)) {
-                    if(!Array.isArray(data) || data.length !== schema.length || !data.every((e, i) => typeof e === schema[i])) {
+                    if(!Array.isArray(data) || data.length !== schema.length || !data.every((e, i) => validate(schema[i], e))) {
                         return;
                     }
                 }
@@ -62,15 +62,7 @@ function SMApp({ app, events }) {
                     let schemaKeysCount = 0;
 
                     for(let k in schema) {
-                        const type = schema[k];
-                        const value = data[k];
-
-                        if(type === 'array') {
-                            if(!Array.isArray(value)) {
-                                return;
-                            }
-                        }
-                        else if(typeof value !== type) {
+                        if(!validate(schema[k], data[k])) {
                             return;
                         }
 
@@ -171,6 +163,21 @@ function unbindSMSocket(ws) {
     const s = ws.__refWS;
     delete ws.__refWS;
     return s;
+}
+
+//---]>
+
+function validate(type, value) {
+    if(type === 'array') {
+        if(!Array.isArray(value)) {
+            return false;
+        }
+    }
+    else if(typeof value !== type) {
+        return false;
+    }
+
+    return true;
 }
 
 //--------------------------------------------------
