@@ -26,6 +26,17 @@ mio.onUpgrade((req, res, next) => {
 
     if(count % 2 === 0) {
         res.close();
+
+        //---]>
+        /* Simulate doing "async" work */
+
+        setTimeout(() => {
+            if(res.aborted) {
+                return;
+            }
+
+            next();
+        }, 1000);
     }
     else {
         res.writeStatus('101');

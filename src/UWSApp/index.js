@@ -2,6 +2,10 @@
 
 //---]>
 
+const {
+    onceCall
+} = require('./../shared/safe');
+
 const SendClientLib = require('./sendClientLib');
 
 //--------------------------------------------------
@@ -86,7 +90,7 @@ function bindWsReq(app, options, events) {
 
             //---]>
 
-            upgrade(req, res, next);
+            upgrade(req, res, onceCall(next, 'onUpgrade | double call: next'));
         },
 
         open(ws) {
