@@ -120,9 +120,13 @@ function bindWsReq(app, options, events) {
         },
 
         message(ws, data, isBinary) {
-            if(isBinary) {
-                events.data(ws, data);
+            const { rawData } = events;
+
+            if(rawData) {
+                rawData(ws, data, isBinary);
             }
+
+            events.data(ws, data, isBinary);
         }
     });
 }

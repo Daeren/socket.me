@@ -21,12 +21,15 @@ function SMApp({ app, events }) {
 
     //---]>
 
-    setCallbackByKey(events, 'data', (ws, buffer) => {
-        const d = unpack(buffer);
+    setCallbackByKey(events, 'data', (ws, buffer, isBinary) => {
+        const { unverifiedData, verifiedData, rejectedData } = events;
+
+        const d = isBinary ? unpack(buffer) : null;
 
         //---]>
 
         if(!d || d instanceof Error) {
+            rejectedData(ws, undefined, undefined);
             return;
         }
 
@@ -39,7 +42,16 @@ function SMApp({ app, events }) {
         const action = smSocket.__actions[type];
         const schema = smSocket.__schemas[type];
 
+        const rejected = rejectedData ? () => rejectedData(ws, type, data) : () => {};
+
+        //---]>
+
+        if(unverifiedData) {
+            unverifiedData(ws, type, data);
+        }
+
         if(!action) {
+            rejected();
             return;
         }
 
@@ -49,16 +61,19 @@ function SMApp({ app, events }) {
         if(schema) {
             if(typeof schema === 'function' || typeof schema === 'string') {
                 if(!validate(schema, data)) {
+                    rejected();
                     return;
                 }
             }
             else if(Array.isArray(schema)) {
                 if(!Array.isArray(data) || data.length !== schema.length || !data.every((e, i) => validate(schema[i], e))) {
+                    rejected();
                     return;
                 }
             }
             else {
                 if(!data) {
+                    rejected();
                     return;
                 }
 
@@ -66,6 +81,7 @@ function SMApp({ app, events }) {
 
                 for(let k in schema) {
                     if(!validate(schema[k], data[k])) {
+                        rejected();
                         return;
                     }
 
@@ -73,9 +89,16 @@ function SMApp({ app, events }) {
                 }
 
                 if(Object.keys(data).length !== schemaKeysCount) {
+                    rejected();
                     return;
                 }
             }
+        }
+
+        //---]>
+
+        if(verifiedData) {
+            verifiedData(ws, type, data);
         }
 
         //---]>
@@ -156,6 +179,28 @@ function SMApp({ app, events }) {
         onDrain(callback) {
             setCallbackByKey(events, 'drain', (ws, bufferedAmount) => {
                 callback(bindSMSocket(ws), bufferedAmount);
+            });
+        },
+
+        onRawData(callback) {
+            setCallbackByKey(events, 'rawData', (ws, data, isBinary) => {
+                callback(bindSMSocket(ws), data, isBinary);
+            });
+        },
+        onRejectedData(callback) {
+            setCallbackByKey(events, 'rejectedData', (ws, type, data) => {
+                callback(bindSMSocket(ws), type, data);
+            });
+        },
+
+        onUnverifiedData(callback) {
+            setCallbackByKey(events, 'unverifiedData', (ws, type, data) => {
+                callback(bindSMSocket(ws), type, data);
+            });
+        },
+        onVerifiedData(callback) {
+            setCallbackByKey(events, 'verifiedData', (ws, type, data) => {
+                callback(bindSMSocket(ws), type, data);
             });
         }
     };

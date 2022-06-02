@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+    </head>
+
+    <body></body>
+
+    <script src="http://localhost:3500/socket.me"></script>
+    <script>
+    const ws = mio('localhost:3500');
+
+    //---]>
+
+    ws.onConnect(() => {
+        //---]>
+        // ok
+
+        ws.emit('hi', '200');
+        ws.emit('myId', 1);
+
+        //---]>
+        // bad
+
+        ws.emit('???');
+        ws.emit('myId', '1');
+    });
+    </script>
+</html>
