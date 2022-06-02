@@ -169,7 +169,8 @@ function SMApp({ app, events }) {
         },
         onDisconnect(callback) {
             setCallbackByKey(events, 'disconnect', (ws) => {
-                callback(unbindSMSocket(bindSMSocket(ws)));
+                bindSMSocket(ws);
+                callback(unbindSMSocket(ws));
             });
         },
         onDrain(callback) {
