@@ -96,8 +96,8 @@ mio.onConnection((socket) => {
 
 Protocol:
 ```
-[mode (u8), typeLen (u8), type (str), ack (u8), data (bin|str)]
-[0-255, 0-255, ..., 0-255, ...]
+[ mode (u8), typeLen (u8), type (str), [ack (u8)], [data (bin|str)] ]
+[ 0-255, 0-255, ..., 0-255, ... ]
 
 C_MODE_BIN   = 1
 C_MODE_JSON  = 2
