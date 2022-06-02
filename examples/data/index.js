@@ -31,12 +31,12 @@ mio.onRawData((socket, data, isBinary) => {
 });
 
 mio.onRejectedData((socket, type, data) => {
+    if(type === undefined && data === undefined) {
+        // ... bad data - packer.error ...
+    }
+
     console.log('onRejectedData', type, data);
     console.log('[!]----------------');
-});
-
-mio.onUnverifiedData((socket, type, data) => {
-    console.log('onUnverifiedData', type, data);
 });
 
 mio.onVerifiedData((socket, type, data) => {

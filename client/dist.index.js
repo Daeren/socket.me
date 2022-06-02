@@ -183,6 +183,8 @@ function pack(type, ack, data) {
     const isBin = isAB || isUB;
     const isEmpty = typeof data === 'undefined';
 
+    const useAck = typeof ack === 'number';
+
     //---]>
 
     const typeBuf = encodeString(type);
@@ -195,7 +197,7 @@ function pack(type, ack, data) {
     const typeLen = typeBuf.byteLength;
     const dataSize = isEmpty ? 0 : dataBuf.byteLength;
 
-    const bufSize = (1) + (1 + typeLen) + (1) + (dataSize);
+    const bufSize = (1) + (1 + typeLen) + (useAck ? 1 : 0) + (dataSize); // mode + typeLen + type + ack + data
     const bufView = bufSize > packBufferCacheSize
         ? new Uint8Array(bufSize)
         : new Uint8Array(packBufferCache, 0, bufSize);
@@ -214,7 +216,7 @@ function pack(type, ack, data) {
     //---]>
 
     // mode
-    bufView[offset] = (isBin ? C_MODE_BIN : C_MODE_JSON) | (typeof ack === 'number' ? C_MODE_ACK : 0) | (isEmpty ? C_MODE_EMPTY : 0);
+    bufView[offset] = (isBin ? C_MODE_BIN : C_MODE_JSON) | (useAck ? C_MODE_ACK : 0) | (isEmpty ? C_MODE_EMPTY : 0);
     offset += 1;
 
     // type length
@@ -226,8 +228,10 @@ function pack(type, ack, data) {
     offset += typeLen;
 
     // ack
-    bufView[offset] = ack;
-    offset += 1;
+    if(useAck) {
+        bufView[offset] = ack;
+        offset += 1;
+    }
 
     // data
     if(dataBuf) {
@@ -248,9 +252,11 @@ function unpack(buffer) {
     const isAB = buffer instanceof ArrayBuffer;
     const isUB = buffer instanceof Uint8Array;
 
+    const bufSize = (isAB || isUB) ? buffer.byteLength : 0;
+
     //---]>
 
-    if((isAB || isUB) === false  || !buffer.byteLength) {
+    if(!bufSize) {
         return null;
     }
 
@@ -279,15 +285,17 @@ function unpack(buffer) {
         type = decodeString(bufView, offset, offset + typeLen);
         offset += typeLen;
 
-        ack = (mode & C_MODE_ACK) === C_MODE_ACK ? bufView[offset] : undefined;
-        offset += 1;
+        if((mode & C_MODE_ACK) === C_MODE_ACK) {
+            ack = bufView[offset];
+            offset += 1;
+        }
 
         if((mode & C_MODE_EMPTY) !== C_MODE_EMPTY) {
             if((mode & C_MODE_BIN) === C_MODE_BIN) {
-                data = bufView.slice(offset, buffer.byteLength).buffer;
+                data = bufView.slice(offset, bufSize).buffer;
             }
             else if((mode & C_MODE_JSON) === C_MODE_JSON) {
-                data = JSON.parse(decodeString(bufView, offset, buffer.byteLength));
+                data = JSON.parse(decodeString(bufView, offset, bufSize));
             }
             else {
                 return null;

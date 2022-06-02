@@ -96,8 +96,6 @@ export type SMAppEventDrain = (socket: SMSocket, bufferedAmount: number) => void
 
 export type SMAppEventRawData = (socket: SMSocket, data: ArrayBuffer, isBinary: boolean) => void;
 export type SMAppEventRejectedData = (socket: SMSocket, type: undefined | string, data: undefined | SMSocketClData) => void;
-
-export type SMAppEventUnverifiedData = (socket: SMSocket, type: string, data: SMSocketClData) => void;
 export type SMAppEventVerifiedData = (socket: SMSocket, type: string, data: SMSocketClData) => void;
 
 //---]>
@@ -124,8 +122,6 @@ export interface SMApp {
 
     onRawData(callback: SMAppEventRawData): void;
     onRejectedData(callback: SMAppEventRejectedData): void; // `type` and `data` undefined - packer.error
-
-    onUnverifiedData(callback: SMAppEventUnverifiedData): void;
     onVerifiedData(callback: SMAppEventVerifiedData): void;
 }
 
