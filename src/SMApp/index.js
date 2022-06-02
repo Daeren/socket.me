@@ -22,7 +22,7 @@ function SMApp({ app, events }) {
     //---]>
 
     setCallbackByKey(events, 'data', (ws, buffer, isBinary) => {
-        const { rejectedData, verifiedData } = events;
+        const { rejectedData, resolvedData } = events;
 
         const d = isBinary ? unpack(buffer) : null;
 
@@ -93,8 +93,8 @@ function SMApp({ app, events }) {
 
         //---]>
 
-        if(verifiedData) {
-            verifiedData(ws, type, data);
+        if(resolvedData) {
+            resolvedData(ws, type, data);
         }
 
         //---]>
@@ -189,8 +189,8 @@ function SMApp({ app, events }) {
                 callback(bindSMSocket(ws), type, data);
             });
         },
-        onVerifiedData(callback) {
-            setCallbackByKey(events, 'verifiedData', (ws, type, data) => {
+        onResolvedData(callback) {
+            setCallbackByKey(events, 'resolvedData', (ws, type, data) => {
                 callback(bindSMSocket(ws), type, data);
             });
         }

@@ -39,8 +39,8 @@ mio.onRejectedData((socket, type, data) => {
     console.log('[!]----------------');
 });
 
-mio.onVerifiedData((socket, type, data) => {
-    console.log('onVerifiedData', type, data);
+mio.onResolvedData((socket, type, data) => {
+    console.log('onResolvedData', type, data);
 });
 
 //--------------------------------------------------
