@@ -15,10 +15,12 @@ function UWSApp(options) {
     const app = optUseSSL ? uws.SSLApp(optSrv) : uws.App(optSrv);
 
     const events = {
-        connection(_ws) { /* NOP */ },
-        disconnect(_ws) { /* NOP */ },
-        drain(_ws, _bufferedAmount) { /* NOP */ },
-        data(_ws, _data) { /* NOP */ }
+        // upgrade(_req, _next) { /* NOP */ },
+        // connection(_ws) { /* NOP */ },
+        // disconnect(_ws) { /* NOP */ },
+        // drain(_ws, _bufferedAmount) { /* NOP */ },
+
+        data(_ws, _data) { /* NOP */ } // system
     };
 
     //---]>
@@ -35,18 +37,83 @@ function UWSApp(options) {
 //---]>
 
 function bindWsReq(app, options, events) {
-    app.ws('/*', {
+    app.ws(options.path, {
         ...options,
 
         //---]>
 
-        open(ws) { events.connection(ws); },
-        close(ws) {
-            ws.isClosed = true;
-            events.disconnect(ws);
+        upgrade(res, req, context) {
+            const { upgrade } = events;
+
+            /* You MUST copy data out of req here, as req is only valid within this immediate callback */
+            const url = req.getUrl();
+            const secWebSocketKey = req.getHeader('sec-websocket-key');
+            const secWebSocketProtocol = req.getHeader('sec-websocket-protocol');
+            const secWebSocketExtensions = req.getHeader('sec-websocket-extensions');
+
+            let aborted = false;
+
+            //---]>
+
+            const next = () => {
+                if(aborted) {
+                    return;
+                }
+
+                /* This immediately calls open handler, you must not use res after this call */
+                res.upgrade({ url },
+                    secWebSocketKey,
+                    secWebSocketProtocol,
+                    secWebSocketExtensions,
+                    context);
+            };
+
+            //---]>
+
+            if(!upgrade) {
+                next();
+                return;
+            }
+
+            //---]>
+
+            /* You MUST register an abort handler to know if the upgrade was aborted by peer */
+            res.onAborted(() => {
+                res.aborted = aborted = true;
+            });
+
+            res.aborted = false;
+
+            //---]>
+
+            upgrade(req, res, next);
         },
 
-        drain(ws) { events.drain(ws, ws.getBufferedAmount()); },
+        open(ws) {
+            const { connection } = events;
+
+            if(connection) {
+                connection(ws);
+            }
+        },
+
+        close(ws) {
+            const { disconnect } = events;
+
+            ws.isClosed = true;
+
+            if(disconnect) {
+                disconnect(ws);
+            }
+        },
+
+        drain(ws) {
+            const { drain } = events;
+
+            if(drain) {
+                drain(ws, ws.getBufferedAmount());
+            }
+        },
 
         message(ws, data, isBinary) {
             if(isBinary) {

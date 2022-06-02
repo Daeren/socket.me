@@ -38,9 +38,67 @@ export interface SMSocket {
 
 //--------------------------------------------------
 
+/** An HttpRequest is stack allocated and only accessible during the callback invocation. */
+export interface HttpRequest {
+    /** Returns the lowercased header value or empty string. */
+    getHeader(lowerCaseKey: string) : string;
+    /** Returns the parsed parameter at index. Corresponds to route. */
+    getParameter(index: number) : string;
+    /** Returns the URL including initial /slash */
+    getUrl() : string;
+    /** Returns the HTTP method, useful for "any" routes. */
+    getMethod() : string;
+    /** Returns the raw querystring (the part of URL after ? sign) or empty string. */
+    getQuery() : string;
+    /** Returns a decoded query parameter value or empty string. */
+    getQuery(key: string) : string;
+    /** Loops over all headers. */
+    forEach(cb: (key: string, value: string) => void) : void;
+    /** Setting yield to true is to say that this route handler did not handle the route, causing the router to continue looking for a matching route handler, or fail. */
+    setYield(yield: boolean) : HttpRequest;
+}
+
+/** An HttpResponse is valid until either onAborted callback or any of the .end/.tryEnd calls succeed. You may attach user data to this object. */
+export interface HttpResponse {
+    aborted: boolean;
+
+    /** Writes the HTTP status message such as "200 OK".
+     * This has to be called first in any response, otherwise
+     * it will be called automatically with "200 OK".
+     *
+     * If you want to send custom headers in a WebSocket
+     * upgrade response, you have to call writeStatus with
+     * "101 Switching Protocols" before you call writeHeader,
+     * otherwise your first call to writeHeader will call
+     * writeStatus with "200 OK" and the upgrade will fail.
+     */
+    writeStatus(status: string) : HttpResponse;
+    writeHeader(key: string, value: string) : HttpResponse;
+
+    /** Immediately force closes the connection. Any onAborted callback will run. */
+    close() : HttpResponse;
+
+    /** Returns the remote IP address in binary format (4 or 16 bytes). */
+    getRemoteAddress() : ArrayBuffer;
+
+    /** Returns the remote IP address as text. */
+    getRemoteAddressAsText() : ArrayBuffer;
+
+    /** Returns the remote IP address in binary format (4 or 16 bytes), as reported by the PROXY Protocol v2 compatible proxy. */
+    getProxiedRemoteAddress() : ArrayBuffer;
+
+    /** Returns the remote IP address as text, as reported by the PROXY Protocol v2 compatible proxy. */
+    getProxiedRemoteAddressAsText() : ArrayBuffer;
+}
+
+//---]>
+
+export type SMAppEventUpgrade = (req: HttpRequest, res: HttpResponse, next: (() => void)) => void;
 export type SMAppEventConnection = (socket: SMSocket) => void;
 export type SMAppEventDisconnection = (socket: SMSocket) => void;
 export type SMAppEventDrain = (socket: SMSocket, bufferedAmount: number) => void;
+
+//---]>
 
 export interface SMApp {
     get bufferedAmount(): number;
@@ -57,6 +115,7 @@ export interface SMApp {
 
     //---]>
 
+    onUpgrade(callback: SMAppEventUpgrade): void;
     onConnection(callback: SMAppEventConnection): void;
     onDisconnect(callback: SMAppEventDisconnection): void;
     onDrain(callback: SMAppEventDrain): void;
@@ -84,6 +143,8 @@ export type CompressOptions = number;
 export type SMAppOptions = {
     // '' - off, <script src="http://localhost:3500/[socket.me]"></script>
     clientLibPath?: 'socket.me';
+    // mio('localhost:3500[/...]')
+    path?: '/';
 
     ssl?: boolean,
     server?: ServerOptions;

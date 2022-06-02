@@ -138,6 +138,11 @@ function SMApp({ app, events }) {
 
         //---]>
 
+        onUpgrade(callback) {
+            setCallbackByKey(events, 'upgrade', (req, res, next) => {
+                callback(req, res, next);
+            });
+        },
         onConnection(callback) {
             setCallbackByKey(events, 'connection', (ws) => {
                 callback(bindSMSocket(ws));
