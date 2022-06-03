@@ -5,7 +5,6 @@ const SocketMe = require('./../../.');
 const RateLimit = (limit, interval) => {
     const last = Symbol();
     const count = Symbol();
-    const types = Symbol('types');
 
     let now = 0;
     let done = false;
@@ -33,10 +32,8 @@ const RateLimit = (limit, interval) => {
         //---]>
 
         if(typeof type === 'string') {
-            const t = ws[types] = ws[types] || Object.create(null);
-
-            const objLast = t[last] = t[last] || Object.create(null);
-            const objCount = t[count] = t[count] || Object.create(null);
+            const objLast = ws[last] = ws[last] || Object.create(null);
+            const objCount = ws[count] = ws[count] || Object.create(null);
 
             if(objLast[type] !== now) {
                 objLast[type] = now;

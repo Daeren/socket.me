@@ -26,7 +26,7 @@ mio.onConnection((socket) => {
 
 //---]>
 
-mio.onRawData((socket, data, isBinaryб, next) => {
+mio.onRawData((socket, data, isBinary, next) => {
     console.log('onRawData', data, isBinary);
     next();
 });
