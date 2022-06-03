@@ -101,7 +101,7 @@ function SMApp({ app, events }) {
 
         if(resolvedData) {
             const next = onceCall(() => {
-                return action(data, response);
+                action(data, response);
             }, 'onResolvedData | double call `event.next`: ' + type);
 
             resolvedData(ws, type, data, next);
