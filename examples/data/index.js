@@ -26,8 +26,14 @@ mio.onConnection((socket) => {
 
 //---]>
 
-mio.onRawData((socket, data, isBinary) => {
+mio.onRawData((socket, data, isBinaryб, next) => {
     console.log('onRawData', data, isBinary);
+    next();
+});
+
+mio.onResolvedData((socket, type, data, next) => {
+    console.log('onResolvedData', type, data);
+    next();
 });
 
 mio.onRejectedData((socket, type, data) => {
@@ -37,10 +43,6 @@ mio.onRejectedData((socket, type, data) => {
 
     console.log('onRejectedData', type, data);
     console.log('[!]----------------');
-});
-
-mio.onResolvedData((socket, type, data) => {
-    console.log('onResolvedData', type, data);
 });
 
 //--------------------------------------------------

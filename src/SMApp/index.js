@@ -22,7 +22,7 @@ function SMApp({ app, events }) {
     //---]>
 
     setCallbackByKey(events, 'data', (ws, buffer, isBinary) => {
-        const { rejectedData, resolvedData } = events;
+        const { resolvedData, rejectedData } = events;
 
         const d = isBinary ? unpack(buffer) : null;
 
@@ -93,17 +93,22 @@ function SMApp({ app, events }) {
 
         //---]>
 
-        if(resolvedData) {
-            resolvedData(ws, type, data);
-        }
-
-        //---]>
-
         const response = onceCall((result) => {
             return smSocket.__send(type, ack, result);
         }, 'Socket.on | double call `response`: ' + type);
 
-        action(data, response);
+        //---]>
+
+        if(resolvedData) {
+            const next = onceCall(() => {
+                return action(data, response);
+            }, 'onResolvedData | double call `event.next`: ' + type);
+
+            resolvedData(ws, type, data, next);
+        }
+        else {
+            action(data, response);
+        }
     });
 
     //---]>
@@ -180,17 +185,17 @@ function SMApp({ app, events }) {
         },
 
         onRawData(callback) {
-            setCallbackByKey(events, 'rawData', (ws, data, isBinary) => {
-                callback(bindSMSocket(ws), data, isBinary);
+            setCallbackByKey(events, 'rawData', (ws, data, isBinary, next) => {
+                callback(bindSMSocket(ws), data, isBinary, next);
+            });
+        },
+        onResolvedData(callback) {
+            setCallbackByKey(events, 'resolvedData', (ws, type, data, next) => {
+                callback(bindSMSocket(ws), type, data, next);
             });
         },
         onRejectedData(callback) {
             setCallbackByKey(events, 'rejectedData', (ws, type, data) => {
-                callback(bindSMSocket(ws), type, data);
-            });
-        },
-        onResolvedData(callback) {
-            setCallbackByKey(events, 'resolvedData', (ws, type, data) => {
                 callback(bindSMSocket(ws), type, data);
             });
         }

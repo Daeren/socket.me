@@ -123,10 +123,15 @@ function bindWsReq(app, options, events) {
             const { rawData } = events;
 
             if(rawData) {
-                rawData(ws, data, isBinary);
-            }
+                const next = onceCall(() => {
+                    return events.data(ws, data, isBinary);
+                }, 'onRawData | double call `event.next`');
 
-            events.data(ws, data, isBinary);
+                rawData(ws, data, isBinary, next);
+            }
+            else {
+                events.data(ws, data, isBinary);
+            }
         }
     });
 }

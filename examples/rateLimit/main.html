@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+    </head>
+
+    <body></body>
+
+    <script src="http://localhost:3500/socket.me"></script>
+    <script>
+    const ws = mio('localhost:3500');
+
+    //---]>
+    // [!] organize a queue to avoid problems with a large number of requests
+
+    function ok() {
+        ws.emit('hi', '200');
+    }
+
+    function bad() {
+        for(let i = 0; i < 3; i++) ws.emit('hi', i);
+        for(let i = 0; i < 2; i++) ws.emit('???', i);
+    }
+
+    //---]>
+
+    ws.onConnect(() => {
+        ok();
+        // bad();
+    });
+
+    ws.onClose((wasClean, code, reason) => {
+        console.log('onClose', wasClean, code, reason);
+    });
+    </script>
+</html>

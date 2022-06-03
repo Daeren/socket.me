@@ -15,6 +15,7 @@ export interface SMSocket {
     //---]>
 
     terminate(): void;
+    // https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
     disconnect(code?: number, reason?: string): void;
 
     //---]>
@@ -94,9 +95,9 @@ export type SMAppEventConnection = (socket: SMSocket) => void;
 export type SMAppEventDisconnection = (socket: SMSocket) => void;
 export type SMAppEventDrain = (socket: SMSocket, bufferedAmount: number) => void;
 
-export type SMAppEventRawData = (socket: SMSocket, data: ArrayBuffer, isBinary: boolean) => void;
+export type SMAppEventRawData = (socket: SMSocket, data: ArrayBuffer, isBinary: boolean, next: (() => void)) => void;
+export type SMAppEventResolvedData = (socket: SMSocket, type: string, data: SMSocketClData, next: (() => void)) => void;
 export type SMAppEventRejectedData = (socket: SMSocket, type: undefined | string, data: undefined | SMSocketClData) => void;
-export type SMAppEventResolvedData = (socket: SMSocket, type: string, data: SMSocketClData) => void;
 
 //---]>
 
@@ -121,8 +122,8 @@ export interface SMApp {
     onDrain(callback: SMAppEventDrain): void;
 
     onRawData(callback: SMAppEventRawData): void;
-    onRejectedData(callback: SMAppEventRejectedData): void; // `type` and `data` undefined - packer.error
     onResolvedData(callback: SMAppEventResolvedData): void;
+    onRejectedData(callback: SMAppEventRejectedData): void; // `type` and `data` undefined - packer.error
 }
 
 //--------------------------------------------------
