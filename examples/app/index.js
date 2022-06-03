@@ -45,7 +45,7 @@ mio.onRejectedData((socket) => {
 //--------------------------------------------------
 
 mio.listen(wsOptions.port).then((status) => {
-    console.log('[status] listening to port 3500:', status);
+    console.log(`[status] listening to port ${wsOptions.port}:`, status);
 });
 
 //--------------------------------------------------
