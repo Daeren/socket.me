@@ -31,7 +31,7 @@ mio.onRawData((socket, data, isBinary, next) => {
     next();
 });
 
-mio.onResolvedData((socket, type, data, next) => {
+mio.onResolvedData((socket, type, data, response, next) => {
     console.log('onResolvedData', type, data);
     next();
 });

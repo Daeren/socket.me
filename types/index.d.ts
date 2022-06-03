@@ -5,7 +5,8 @@ export type SMSocketSendResult = number;
 
 //--------------------------------------------------
 
-export type SMSocketEvent = (data: SMSocketClData, response: (data?: SMSocketSendData) => SMSocketSendResult) => void;
+export type SMSocketEventResponse = (data?: SMSocketSendData) => SMSocketSendResult;
+export type SMSocketEvent = (data: SMSocketClData, response: SMSocketEventResponse) => void;
 export type SMSocketTypedValidator = (v: any) => boolean;
 
 export interface SMSocket {
@@ -96,7 +97,7 @@ export type SMAppEventDisconnection = (socket: SMSocket) => void;
 export type SMAppEventDrain = (socket: SMSocket, bufferedAmount: number) => void;
 
 export type SMAppEventRawData = (socket: SMSocket, data: ArrayBuffer, isBinary: boolean, next: (() => void)) => void;
-export type SMAppEventResolvedData = (socket: SMSocket, type: string, data: SMSocketClData, next: (() => void)) => void;
+export type SMAppEventResolvedData = (socket: SMSocket, type: string, data: SMSocketClData, response: SMSocketEventResponse, next: (() => void)) => void;
 export type SMAppEventRejectedData = (socket: SMSocket, type: undefined | string, data: undefined | SMSocketClData) => void;
 
 //---]>

@@ -29,12 +29,19 @@ mio.onConnection((socket) => {
         mio.publish('all', 'createRoom', text);
     });
 
-    socket.on('message', (text, response) => {
-        response(`${text} world`);  // ответ лично в запрос или в общее событие (если изначально был общий запрос)
+    socket.on('message', (text, callback) => {
+        if(callback) {
+            callback(`${text} world`);  // ответ лично в запрос
+        }
+        else {
+            socket.emit('message', `${text} world`);
+        }
     });
 
-    socket.on('destroyMe', (silent, response) => {
-        response('ok');
+    socket.on('destroyMe', (silent, callback) => {
+        if(callback) {
+            callback('ok');
+        }
 
         if(silent) {
             socket.terminate();
@@ -44,8 +51,10 @@ mio.onConnection((socket) => {
         }
     });
 
-    socket.on('error', (data, response) => {
-        response(data);
+    socket.on('error', (data, callback) => {
+        if(callback) {
+            callback(data);
+        }
     });
 });
 

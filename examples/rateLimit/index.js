@@ -90,7 +90,7 @@ mio.onRawData((socket, data, isBinary, next) => {
     next();
 });
 
-mio.onResolvedData((socket, type, data, next) => {
+mio.onResolvedData((socket, type, data, callback, next) => {
     console.log('onResolvedData', type, data);
 
     // of these, only 3 messages per event per second are possible

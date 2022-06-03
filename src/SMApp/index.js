@@ -93,18 +93,20 @@ function SMApp({ app, events }) {
 
         //---]>
 
-        const response = onceCall((result) => {
-            return smSocket.__send(type, ack, result);
-        }, 'Socket.on | double call `response`: ' + type);
+        const response = typeof ack === 'undefined'
+            ? undefined
+            : onceCall((result) => {
+                return smSocket.__send(type, ack, result);
+            }, 'Socket.on | double call `response`');
 
         //---]>
 
         if(resolvedData) {
             const next = onceCall(() => {
                 action(data, response);
-            }, 'onResolvedData | double call `event.next`: ' + type);
+            }, 'onResolvedData | double call `event.next`');
 
-            resolvedData(ws, type, data, next);
+            resolvedData(ws, type, data, response, next);
         }
         else {
             action(data, response);
@@ -190,8 +192,8 @@ function SMApp({ app, events }) {
             });
         },
         onResolvedData(callback) {
-            setCallbackByKey(events, 'resolvedData', (ws, type, data, next) => {
-                callback(bindSMSocket(ws), type, data, next);
+            setCallbackByKey(events, 'resolvedData', (ws, type, data, response, next) => {
+                callback(bindSMSocket(ws), type, data, response, next);
             });
         },
         onRejectedData(callback) {

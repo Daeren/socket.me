@@ -21,8 +21,8 @@ const mio = SocketMe({
 mio.onConnection((socket) => {
     socket.subscribe('all');
     
-    socket.on('message', (text, response) => {
-        response(`${text} world`);
+    socket.on('message', (text, callback) => {
+        callback(`${text} world`);
         socket.emit('someEvent', text);
         mio.publish('all', 'someEvent', text);
     });
