@@ -7,5 +7,8 @@ module.exports = {
     },
 
     instance: {
+        idleTimeout: 8,
+        maxBackpressure: 512,
+        maxPayloadLength: 512
     }
 };
