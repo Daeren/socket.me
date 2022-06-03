@@ -5,14 +5,14 @@
  * @returns {Function}
  */
 function onceCall(callback, errorMessage = 'Double call') {
-    let replyDone = false;
+    let done = false;
 
     return (...args) => {
-        if(replyDone) {
+        if(done) {
             throw new Error(errorMessage);
         }
 
-        replyDone = true;
+        done = true;
         return callback(...args);
     };
 }
