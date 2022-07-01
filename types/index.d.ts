@@ -147,8 +147,10 @@ export type CompressOptions = number;
 //---]>
 
 export type SMAppOptions = {
-    // '' - off, <script src="http://localhost:3500/[socket.me]"></script>
+    useClientLib?: boolean;
+    // <script src="http://localhost:3500/[socket.me]"></script>
     clientLibPath?: 'socket.me';
+
     // mio('localhost:3500[/...]')
     path?: '/';
 

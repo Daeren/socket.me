@@ -137,7 +137,7 @@ function bindWsReq(app, options, events) {
 }
 
 function bindClientLibGetReq(app, options) {
-    if(!options.clientLibPath) {
+    if(!options.clientLibPath || !options.useClientLib) {
         return;
     }
 
