@@ -4,6 +4,7 @@ export type CSocketSendResult = boolean;
 
 //--------------------------------------------------
 
+export type CSocketAnyEvent = (type: string, data: CSocketSrvData) => void;
 export type CSocketEvent = (data: CSocketSrvData) => void;
 export type CSocketEventResponse = (result: (Error | CSocketSrvData)) => void;
 
@@ -27,6 +28,9 @@ export interface CSocket {
     close(code?: number, reason?: string): void;
 
     //---]>
+
+    onAny(callback: CSocketAnyEvent): void;
+    offAny(): void;
 
     on(type: string, callback: CSocketEvent): void;
     off(type?: string): void;

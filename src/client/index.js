@@ -20,6 +20,8 @@ const {
 function mio(host = 'localhost:3500', ssl = false) {
     const socket = new WebSocket(`ws${ssl ? 's' : ''}://${host}`);
 
+    let actionAny = null;
+
     let actions = Object.create(null);
     const events = {
         connect() { /* NOP */ },
@@ -74,6 +76,10 @@ function mio(host = 'localhost:3500', ssl = false) {
             silentCallByKey(callbacksAck, ack, payload);
         }
         else {
+            if(actionAny) {
+                actionAny(type, payload);
+            }
+
             silentCallByKey(actions, type, payload);
         }
     };
@@ -97,6 +103,17 @@ function mio(host = 'localhost:3500', ssl = false) {
         },
 
         //---]>
+
+        onAny(callback) {
+            if(actionAny) {
+                throw new Error('This event already exists');
+            }
+
+            actionAny = callback;
+        },
+        offAny() {
+            actionAny = null;
+        },
 
         on(type, callback) {
             assertBindEvent(type, callback);
