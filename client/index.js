@@ -1,5 +1,6 @@
 
-            const global = {};global.tools = {};((module) => { ﻿/**
+            export default (function() {
+                const __g_ctx__ = {};__g_ctx__.tools = {};((module) => { ﻿/**
  *
  * @param {object} table
  * @param {string} key
@@ -18,7 +19,7 @@ function silentCallByKey(table, key, payload) {
 module.exports = {
     silentCallByKey
 };
- })(global.tools);global.safe = {};((module) => { ﻿/**
+ })(__g_ctx__.tools);__g_ctx__.safe = {};((module) => { ﻿/**
  *
  * @param {Function} callback
  * @param {string} errorMessage
@@ -154,7 +155,7 @@ module.exports = {
     assertChangeTopic,
     assertPublishTopic
 };
- })(global.safe);global.messagePacker = {};((module) => { ﻿const C_MODE_BIN = 1;
+ })(__g_ctx__.safe);__g_ctx__.messagePacker = {};((module) => { ﻿const C_MODE_BIN = 1;
 const C_MODE_JSON = 2;
 const C_MODE_ACK = 4;
 const C_MODE_EMPTY = 8;
@@ -491,9 +492,9 @@ function utf8Decode(bytes, inputOffset, byteLength) {
 
     return String.fromCharCode.apply(String, out);
 }
- })(global.messagePacker);global.mio = {};((module) => { ﻿const {
+ })(__g_ctx__.messagePacker);__g_ctx__.mio = {};((module) => { ﻿const {
     silentCallByKey
-} = global.tools.exports;
+} = __g_ctx__.tools.exports;
 
 const {
     setCallbackByKey,
@@ -501,12 +502,12 @@ const {
     assertBindEvent,
     assertRemoveEvent,
     assertCallEvent
-} = global.safe.exports;
+} = __g_ctx__.safe.exports;
 
 const {
     pack,
     unpack
-} = global.messagePacker.exports;
+} = __g_ctx__.messagePacker.exports;
 
 //--------------------------------------------------
 
@@ -702,6 +703,7 @@ function mio(host = 'localhost:3500', ssl = false) {
 //--------------------------------------------------
 
 module.exports = mio;
- })(global.mio);
-            export default global.mio.exports;
+ })(__g_ctx__.mio);
+                return __g_ctx__.mio.exports;
+            })();
         

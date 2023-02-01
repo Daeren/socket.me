@@ -6,7 +6,7 @@ const path = require('path');
 function genClientLib(targets) {
     const libs = load();
 
-    let txtModules = 'const global = {};';
+    let txtModules = 'const __g_ctx__ = {};';
     let txtClient = '';
 
     //---]>
@@ -20,12 +20,12 @@ function genClientLib(targets) {
 
     for(const [name] of Object.entries(libs)) {
         if(name !== 'mio') {
-            txtClient = txtClient.replace(/require\(.+\)/, `global.${name}.exports`);
+            txtClient = txtClient.replace(/require\(.+\)/, `__g_ctx__.${name}.exports`);
         }
     }
 
     for(const [name, lib] of Object.entries(libs)) {
-        const makeBody = (v) => `global.${name} = {};((module) => { ${v} })(global.${name});`;
+        const makeBody = (v) => `__g_ctx__.${name} = {};((module) => { ${v} })(__g_ctx__.${name});`;
 
         if(name === 'mio') {
             txtClient = makeBody(txtClient);
@@ -45,16 +45,20 @@ function genClientLib(targets) {
         dist: `
             (function() {
                 ${raw}
-                window.mio = global.mio.exports;
+                window.mio = __g_ctx__.mio.exports;
             })();
         `,
         common: `
-            ${raw}
-            module.export = global.mio.exports;
+            (function() {
+                ${raw}
+                module.export = __g_ctx__.mio.exports;
+            })();
         `,
         es6: `
-            ${raw}
-            export default global.mio.exports;
+            export default (function() {
+                ${raw}
+                return __g_ctx__.mio.exports;
+            })();
         `
     };
 
