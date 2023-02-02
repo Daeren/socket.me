@@ -174,9 +174,11 @@ const dec = new TextDecoder();
 
 //---]>
 
-const encStrBufferAlloc = 256;
-const encStrBufferSize = (encStrBufferAlloc * 2) * 2;  // utf16 (utf8 + utf8 = x2) + pack (type + data = x2)
-const encStrBufferCache = new ArrayBuffer(encStrBufferSize);
+const encStrBufferSymSize = 256;
+const encStrBufferBytes = encStrBufferSymSize * 4; // ~ utf32
+
+const encStrBuffersSize = encStrBufferBytes * 2;  // buf_1 + buf_2 = x2
+const encStrBuffersCache = new ArrayBuffer(encStrBuffersSize);
 
 let encStrBufferOffset = 0;
 
@@ -190,11 +192,11 @@ let encStrBufferOffset = 0;
 function encodeString(str) {
     const len = str.length;
 
-    if(len <= encStrBufferAlloc) {
+    if(len <= encStrBufferSymSize) {
         const byteLength = utf8ByteLength(str, len);
-        const bufView = new Uint8Array(encStrBufferCache, encStrBufferOffset, byteLength);
+        const bufView = new Uint8Array(encStrBuffersCache, encStrBufferOffset, byteLength);
 
-        encStrBufferOffset = (encStrBufferOffset + encStrBufferAlloc) % encStrBufferSize;
+        encStrBufferOffset = (encStrBufferOffset + encStrBufferBytes) % encStrBuffersSize;
 
         utf8Encode(bufView, 0, str, len);
 
