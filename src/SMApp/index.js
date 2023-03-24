@@ -81,16 +81,9 @@ function SMApp({ app, events }) {
                 //---]>
 
                 for(let k in data) {
-                    if(dataKeysCount >= schemaKeysCount) {
-                        rejected();
-                        return;
-                    }
-
-                    //---]>
-
                     const s = schema[k];
 
-                    if(!s || !validate(s, data[k])) {
+                    if(!s || dataKeysCount >= schemaKeysCount || !validate(s, data[k])) {
                         rejected();
                         return;
                     }
