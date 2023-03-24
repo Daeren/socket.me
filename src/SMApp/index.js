@@ -78,6 +78,8 @@ function SMApp({ app, events }) {
                 const schemaKeysCount = Object.keys(schema).length;
                 let dataKeysCount = 0;
 
+                //---]>
+
                 for(let k in data) {
                     if(dataKeysCount >= schemaKeysCount) {
                         rejected();
@@ -96,6 +98,11 @@ function SMApp({ app, events }) {
                     //---]>
 
                     ++dataKeysCount;
+                }
+
+                if(schemaKeysCount !== dataKeysCount) {
+                    rejected();
+                    return;
                 }
             }
         }
