@@ -3,6 +3,7 @@ const SocketMe = require('./../../.');
 //--------------------------------------------------
 
 const mio = SocketMe({
+    useClientLib: true,
     path: '/my-path'
 });
 

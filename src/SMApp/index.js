@@ -73,20 +73,29 @@ function SMApp({ app, events }) {
                     return;
                 }
 
-                let schemaKeysCount = 0;
+                //---]>
 
-                for(let k in schema) {
-                    if(!validate(schema[k], data[k])) {
+                const schemaKeysCount = Object.keys(schema).length;
+                let dataKeysCount = 0;
+
+                for(let k in data) {
+                    if(dataKeysCount >= schemaKeysCount) {
                         rejected();
                         return;
                     }
 
-                    schemaKeysCount++;
-                }
+                    //---]>
 
-                if(Object.keys(data).length !== schemaKeysCount) {
-                    rejected();
-                    return;
+                    const s = schema[k];
+
+                    if(!s || !validate(s, data[k])) {
+                        rejected();
+                        return;
+                    }
+
+                    //---]>
+
+                    ++dataKeysCount;
                 }
             }
         }

@@ -3,6 +3,8 @@ const SocketMe = require('./../../.');
 //--------------------------------------------------
 
 const mio = SocketMe({
+    useClientLib: true,
+	
     idleTimeout: 8,
     maxPayloadLength: 512
 });

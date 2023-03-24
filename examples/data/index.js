@@ -2,7 +2,9 @@ const SocketMe = require('./../../.');
 
 //--------------------------------------------------
 
-const mio = SocketMe();
+const mio = SocketMe({
+    useClientLib: true
+});
 
 //--------------------------------------------------
 

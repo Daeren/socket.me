@@ -60,7 +60,9 @@ const RateLimit = (limit, interval) => {
 
 //--------------------------------------------------
 
-const mio = SocketMe();
+const mio = SocketMe({
+    useClientLib: true
+});
 
 //---]>
 

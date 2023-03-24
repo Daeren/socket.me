@@ -12,8 +12,8 @@
 Server:
 ```javascript
 const mio = SocketMe({
-    idleTimeout: 8,
-    maxPayloadLength: 128
+    idleTimeout: 16,
+    maxPayloadLength: 512
 });
 
 //---]>
@@ -48,6 +48,14 @@ ws.on('someEvent', (data) => {});
 
 
 Browser:
+
+```javascript
+const mio = SocketMe({
+    useClientLib: true, 
+ // clientLibPath: 'socket.me_myPath'
+});
+```
+
 ```javascript
 <script src="http://localhost:3500/socket.me"></script>
 ```

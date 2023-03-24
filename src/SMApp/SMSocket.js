@@ -14,6 +14,10 @@ const { pack } = require('./../shared/messagePacker');
 //--------------------------------------------------
 
 function SMSocket(socket) {
+    const _self = this;
+
+    //---]>
+
     const send = (type, ack, data) => {
         if(socket.isClosed) {
             return -1;
@@ -90,11 +94,12 @@ function SMSocket(socket) {
             assertBindSchema(schema);
 
             //---]>
+            // proxy
 
-            const wrapper = Object.create(this);
+            const wrapper = Object.create(_self);
 
             wrapper.on = (type, callback) => {
-                this.on(type, callback);
+                _self.on(type, callback);
                 schemas[type] = schema;
             };
 

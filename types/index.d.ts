@@ -147,12 +147,12 @@ export type CompressOptions = number;
 //---]>
 
 export type SMAppOptions = {
-    useClientLib?: boolean;
-    // <script src="http://localhost:3500/[socket.me]"></script>
-    clientLibPath?: 'socket.me';
+    useClientLib?: boolean; // server.default: false
+    // client: <script src="http://localhost:3500/[socket.me]"></script>
+    clientLibPath?: string; // server.default: 'socket.me'
 
-    // mio('localhost:3500[/...]')
-    path?: '/';
+    // client: mio('localhost:3500[/...]')
+    path?: string; // server.default: '/'
 
     ssl?: boolean,
     server?: ServerOptions;
