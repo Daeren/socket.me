@@ -1,6 +1,6 @@
 {
   "name": "socket.me",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Fast Strong-typed WebSockets",
 
   "author": {

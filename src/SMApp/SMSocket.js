@@ -14,10 +14,6 @@ const { pack } = require('./../shared/messagePacker');
 //--------------------------------------------------
 
 function SMSocket(socket) {
-    const _self = this;
-
-    //---]>
-
     const send = (type, ack, data) => {
         if(socket.isClosed) {
             return -1;
@@ -36,7 +32,7 @@ function SMSocket(socket) {
 
     //---]>
 
-    return {
+    const instance = {
         get __actions() { return actions; },
         get __schemas() { return schemas; },
         get __send() { return send; },
@@ -96,10 +92,10 @@ function SMSocket(socket) {
             //---]>
             // proxy
 
-            const wrapper = Object.create(_self);
+            const wrapper = Object.create(instance);
 
             wrapper.on = (type, callback) => {
-                _self.on(type, callback);
+                instance.on(type, callback);
                 schemas[type] = schema;
             };
 
@@ -137,6 +133,10 @@ function SMSocket(socket) {
             return send(type, null, data);
         }
     };
+
+    //---]>
+
+    return instance;
 }
 
 //--------------------------------------------------
