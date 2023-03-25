@@ -48,5 +48,5 @@ export interface CSocket {
 //--------------------------------------------------
 
 export interface Mio {
-    (host?: string, ssl?:boolean): CSocket;
+    (host?: string, ssl?: boolean): CSocket;
 }
