@@ -514,7 +514,7 @@ const {
 //--------------------------------------------------
 
 function mio(host = 'localhost:3500', ssl = false) {
-    const socket = new WebSocket(`ws${ssl ? 's' : ''}://${host}`);
+    const socket = new WebSocket(`ws${ ssl ? 's' : '' }://${ host }`);
 
     let actionAny = null;
 
